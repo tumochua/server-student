@@ -13,7 +13,12 @@ const handleGetlistUsers = async (req, res) => {
   }
 };
 
+const handleTest = (req, res) => {
+  return res.status(200).json("tumochua");
+};
+
 module.exports = {
   getHomePage,
   handleGetlistUsers,
+  handleTest,
 };

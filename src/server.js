@@ -1,25 +1,23 @@
+require("dotenv").config();
 import express from "express";
+const app = express();
 import bodyParser from "body-parser";
 import viewEngine from "./config/viewEngine";
 import initWebRoutes from "./route/web";
 import connectDB from "./config/connectDB";
 import cors from "cors";
-// let app = express()
-
-// let cors = require('cors')
-
-require("dotenv").config();
-
-let app = express();
-
-// if (NODE_ENV !== 'production') {
-//   app.use(cors())
-// }
-// app.use(cors({ credentials: true, origin: true }));
-// app.use(cors());
+import createErrors from "http-errors";
+// const client = require("./helpers/connection-redis");
+// client.set("token", "abc");
+// client.get("token", function (eror, result) {
+//   if (eror) {
+//     console.log(eror);
+//   }
+//   console.log(result);
+// });
 app.use(
   cors({
-    origin: process.env.VUE_URL,
+    origin: process.env.REACTJS_URL,
   })
 );
 
@@ -31,6 +29,17 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 viewEngine(app);
 initWebRoutes(app);
+
+app.use((req, res, next) => {
+  next(createErrors.NotFound("This route does not exits"));
+});
+
+app.use((eror, req, res, next) => {
+  res.json({
+    status: eror.status || 500,
+    message: eror.message,
+  });
+});
 
 connectDB();
 
