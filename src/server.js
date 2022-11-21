@@ -18,6 +18,7 @@ import createErrors from "http-errors";
 app.use(
   cors({
     origin: process.env.REACTJS_URL,
+    credentials: true,
   })
 );
 

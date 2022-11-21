@@ -14,7 +14,8 @@ const handleGetlistUsers = async (req, res) => {
 };
 
 const handleTest = (req, res) => {
-  return res.status(200).json("tumochua");
+  console.log("nguten avn tu");
+  res.send("tumochua");
 };
 
 module.exports = {
