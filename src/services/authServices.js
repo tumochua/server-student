@@ -15,9 +15,9 @@ import client from "../helpers/connection-redis";
 
 const handleRegisterService = (user) => {
   return new Promise(async (resolve, reject) => {
-    const { email, password } = user;
+    const { email, password, fullName } = user;
     try {
-      if (!email || !password) {
+      if (!email || !password || !fullName) {
         resolve({
           status: 400,
           message: "you are missing a required parameter",
@@ -28,12 +28,13 @@ const handleRegisterService = (user) => {
       const hashPassword = await useHasPassword(password);
       if (!data) {
         await db.User.create({
+          fullName: fullName,
           email: email,
           passwordHash: hashPassword,
         });
-        resolve("create user successful");
+        resolve({ statusCode: 2, message: "create user successful" });
       } else {
-        resolve(`${data.email} Your have not`);
+        resolve({ statusCode: 4, message: `${data.email} Your have not` });
       }
     } catch (error) {
       createError.InternalServerError();
@@ -56,7 +57,6 @@ const handleLoginService = (user) => {
           const refreshToken = await useRefreshToken(userId);
           delete data.passwordHash;
           resolve({
-            statusCode: 2,
             user: data,
             accessToken: accessToken,
             refreshToken: refreshToken,

@@ -23,28 +23,51 @@ const useAccessToken = (userId) => {
     }
   });
 };
-const useVerifyAccessToken = (req, res, next) => {
-  try {
-    const authHeader = req.headers["authorization"];
-    if (!authHeader) {
-      res.send("token incorrect");
-    } else {
-      const tokenBearer = authHeader.split(" ");
-      const token = tokenBearer[1];
-      if (token) {
-        try {
-          const verify = JWT.verify(token, process.env.ACCSES_TOKEN);
-          req.userId = verify.userId;
-          next();
-        } catch (error) {
-          res.send(error.message);
-          console.log(error);
-        }
+// const useVerifyAccessToken = (req, res, next) => {
+//   return new Promise((resolve, reject) => {
+//     try {
+//       const token = req.cookies.accessToken;
+//       if (!token) {
+//         res.send("token incorrect");
+//       } else {
+//         if (token) {
+//           try {
+//             const verify = JWT.verify(token, process.env.ACCSES_TOKEN);
+//             req.userId = verify.userId;
+//             next();
+//           } catch (error) {
+//             resolve(error.message);
+//             console.log(error);
+//           }
+//         }
+//       }
+//     } catch (error) {
+//       console.log(error);
+//     }
+//   });
+// };
+// try {
+//   const verify = JWT.verify(token, process.env.ACCSES_TOKEN);
+//   console.log("verify", verify);
+//   const userId = verify.userId;
+//   resolve(userId);
+// }catch (error) {
+// // console.log(error);
+// resolve(error.message);
+// };
+
+const useVerifyAccessToken = (token) => {
+  return new Promise((resolve, reject) => {
+    if (token) {
+      try {
+        const verify = JWT.verify(token, process.env.ACCSES_TOKEN);
+        const userId = verify.userId;
+        resolve(userId);
+      } catch (error) {
+        resolve(error.message);
       }
     }
-  } catch (error) {
-    console.log(error);
-  }
+  });
 };
 
 const useRefreshToken = (userId) => {

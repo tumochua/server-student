@@ -3,9 +3,13 @@ import db from "../models/index";
 const handleGetlistUsers = () => {
   return new Promise(async (resolve, reject) => {
     try {
-      const listUsers = await db.User.findAll();
+      const listUsers = await db.User.findAll({
+        attributes: {
+          exclude: ["passwordHash"],
+        },
+      });
       resolve({
-        errCode: 2,
+        statusCode: 2,
         data: listUsers,
       });
     } catch (error) {

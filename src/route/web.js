@@ -2,6 +2,7 @@ import express from "express";
 import homeController from "../controllers/homeController";
 import auth from "../controllers/authController.js";
 import { useVerifyAccessToken } from "../jwt/useJwt";
+import { useMiddlewarekAccessToken } from "../middleware/index";
 
 let router = express.Router();
 
@@ -9,7 +10,7 @@ let initWebRoutes = (app) => {
   router.get("/", homeController.getHomePage);
   router.get(
     "/api-get-list-users",
-    useVerifyAccessToken,
+    useMiddlewarekAccessToken,
     homeController.handleGetlistUsers
   );
 

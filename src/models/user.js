@@ -26,6 +26,7 @@ module.exports = (sequelize, DataTypes) => {
       date_of_join: DataTypes.DATE,
       status: DataTypes.BOOLEAN,
       last_login: DataTypes.DATE,
+      image: DataTypes.BLOB,
     },
     {
       sequelize,

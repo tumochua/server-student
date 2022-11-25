@@ -26,11 +26,11 @@ module.exports = {
       },
       dob: {
         type: Sequelize.DATE,
-        unique: true,
       },
       roleId: {
         allowNull: false,
         type: Sequelize.STRING,
+        defaultValue: "R0",
       },
       mobile: {
         type: Sequelize.INTEGER,
@@ -42,6 +42,7 @@ module.exports = {
       genderId: {
         allowNull: false,
         type: Sequelize.STRING,
+        defaultValue: "M",
       },
       profile: {
         type: Sequelize.TEXT,
@@ -54,6 +55,9 @@ module.exports = {
       },
       last_login: {
         type: Sequelize.DATE,
+      },
+      image: {
+        type: Sequelize.BLOB("long"),
       },
 
       createdAt: {

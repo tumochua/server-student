@@ -19,7 +19,19 @@ const handleRegister = async (req, res, next) => {
 const hanldeLogin = async (req, res, next) => {
   try {
     const data = await handleLoginService(req.body);
-    return res.status(200).json(data);
+    res.cookie("accessToken", data.accessToken, {
+      httpOnly: true,
+      secure: true,
+    });
+    res.cookie("refreshToken", data.refreshToken, {
+      httpOnly: true,
+      secure: true,
+    });
+
+    return res.status(200).json({
+      statusCode: 2,
+      data: data.user,
+    });
   } catch (error) {
     console.log(error);
     next(error);

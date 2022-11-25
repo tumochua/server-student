@@ -7,14 +7,7 @@ import initWebRoutes from "./route/web";
 import connectDB from "./config/connectDB";
 import cors from "cors";
 import createErrors from "http-errors";
-// const client = require("./helpers/connection-redis");
-// client.set("token", "abc");
-// client.get("token", function (eror, result) {
-//   if (eror) {
-//     console.log(eror);
-//   }
-//   console.log(result);
-// });
+import cookieParser from "cookie-parser";
 app.use(
   cors({
     origin: process.env.REACTJS_URL,
@@ -22,9 +15,9 @@ app.use(
   })
 );
 
-app.use(bodyParser.json({ limit: "50mb" }));
-app.use(bodyParser.urlencoded({ limit: "50mb" }));
-
+// app.use(bodyParser.json({ limit: "50mb" }));
+// app.use(bodyParser.urlencoded({ limit: "50mb" }));
+app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
