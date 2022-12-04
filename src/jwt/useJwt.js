@@ -23,38 +23,6 @@ const useAccessToken = (userId) => {
     }
   });
 };
-// const useVerifyAccessToken = (req, res, next) => {
-//   return new Promise((resolve, reject) => {
-//     try {
-//       const token = req.cookies.accessToken;
-//       if (!token) {
-//         res.send("token incorrect");
-//       } else {
-//         if (token) {
-//           try {
-//             const verify = JWT.verify(token, process.env.ACCSES_TOKEN);
-//             req.userId = verify.userId;
-//             next();
-//           } catch (error) {
-//             resolve(error.message);
-//             console.log(error);
-//           }
-//         }
-//       }
-//     } catch (error) {
-//       console.log(error);
-//     }
-//   });
-// };
-// try {
-//   const verify = JWT.verify(token, process.env.ACCSES_TOKEN);
-//   console.log("verify", verify);
-//   const userId = verify.userId;
-//   resolve(userId);
-// }catch (error) {
-// // console.log(error);
-// resolve(error.message);
-// };
 
 const useVerifyAccessToken = (token) => {
   return new Promise((resolve, reject) => {
@@ -84,7 +52,6 @@ const useRefreshToken = (userId) => {
         const token = JWT.sign(payload, secret, options);
         if (token) {
           // client.set("token", "tumochua", { EX: 20 });
-
           client.set(
             userId.toString(),
             token,
@@ -95,13 +62,11 @@ const useRefreshToken = (userId) => {
               }
             }
           );
-
           resolve(token);
         }
       }
     } catch (error) {
-      console.log(error);
-      reject(error);
+      resolve(error.message);
     }
   });
 };
@@ -118,12 +83,10 @@ const userVervifyRefreshToken = (refrestoken) => {
         // console.log(refrestoken);
         if (refrestoken === data) {
           return resolve(vervifyRefreshToken);
-        } else {
-          return resolve("Token Invalid");
         }
       }
     } catch (error) {
-      return reject(error);
+      resolve(error.message);
     }
   });
 };

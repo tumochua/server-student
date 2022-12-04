@@ -47,6 +47,13 @@ const handleLoginService = (user) => {
   return new Promise(async (resolve, reject) => {
     try {
       let data = await userCheckEmail(user.email);
+      if (!data) {
+        resolve({
+          statusCode: 4,
+          message: "Your login information is incorrect",
+        });
+        return;
+      }
       if (data) {
         const passwordHash = data.passwordHash;
         const userId = data.id;
@@ -56,16 +63,24 @@ const handleLoginService = (user) => {
           const accessToken = await useAccessToken(userId);
           const refreshToken = await useRefreshToken(userId);
           delete data.passwordHash;
+
           resolve({
+            statusCode: 2,
             user: data,
             accessToken: accessToken,
             refreshToken: refreshToken,
           });
         } else {
-          resolve("Your login information is incorrect");
+          resolve({
+            statusCode: 4,
+            message: "Your login information is incorrect",
+          });
         }
       } else {
-        resolve("Your login information is incorrect");
+        resolve({
+          statusCode: 4,
+          message: "Your login information is incorrect",
+        });
       }
     } catch (error) {
       console.log(error);

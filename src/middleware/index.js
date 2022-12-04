@@ -1,10 +1,12 @@
+import db from "../models/index";
+
 import {
   useAccessToken,
   useVerifyAccessToken,
   userVervifyRefreshToken,
 } from "../jwt/useJwt";
 
-const useMiddlewarekAccessToken = (req, res, next) => {
+const useCheckErrorToken = (req, res, next) => {
   return new Promise(async (resolve, reject) => {
     try {
       const token = req.cookies;
@@ -12,38 +14,91 @@ const useMiddlewarekAccessToken = (req, res, next) => {
         const accessToken = token.accessToken;
         const refreshToken = token.refreshToken;
         const data = await useVerifyAccessToken(accessToken);
-        console.log("data", data);
+        if (Number.isInteger(data)) {
+          req.userId = data;
+          return next();
+        }
+        if (data === "invalid token") {
+          res.json({
+            statusCode: 403,
+            message: "invalid token",
+          });
+        }
         if (data === "jwt expired") {
           const tokenRefreshToken = await userVervifyRefreshToken(refreshToken);
+          // console.log(tokenRefreshToken);
+          // console.log(tokenRefreshToken === "invalid token");
+          if (tokenRefreshToken === "invalid token") {
+            res.json({
+              statusCode: 403,
+              message: "invalid token",
+            });
+          }
           const userId = tokenRefreshToken.userId;
           const newAccessToken = await useAccessToken(userId);
           res.cookie("accessToken", newAccessToken, {
-            httpOnly: true,
-            secure: true,
+            // httpOnly: true,
+            // secure: true,
           });
           req.userId = userId;
-          next();
-        } else {
-          req.userId = data;
-          next();
+          return next();
         }
       } else {
-        resolve("token not found");
+        res.json({
+          statusCode: 404,
+          message: "invalid token",
+        });
       }
     } catch (error) {
       console.log(error);
-      resolve(error);
+      res.json({
+        statusCode: 500,
+        message: "error from serve",
+      });
     }
   });
 };
 
-const useCheckErrorToken = (token) => {
-  return new Promise((resolve, reject) => {
-    if (token) {
+const useCheckRoles = (req, res, next) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const user = await db.User.findOne({
+        where: {
+          id: req.userId,
+        },
+        attributes: {
+          exclude: ["password"],
+        },
+        include: [
+          {
+            model: db.AllCode,
+            as: "genderData",
+            attributes: ["id", "KeyMap", "valueEn", "valueVi"],
+          },
+          {
+            model: db.AllCode,
+            as: "roleData",
+            attributes: ["id", "KeyMap", "valueEn", "valueVi"],
+          },
+        ],
+        raw: true,
+        nest: true,
+      });
+      if (user) {
+        req.role = user.roleData;
+        next();
+      }
+    } catch (error) {
+      console.log(error);
+      res.json({
+        statusCode: 500,
+        message: "error from serve",
+      });
     }
   });
 };
 
 module.exports = {
-  useMiddlewarekAccessToken,
+  useCheckErrorToken,
+  useCheckRoles,
 };

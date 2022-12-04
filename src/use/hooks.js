@@ -1,6 +1,4 @@
 import bcrypt from "bcryptjs";
-import createError from "http-errors";
-
 import db from "../models/index";
 const salt = bcrypt.genSaltSync(10);
 
@@ -32,8 +30,64 @@ const useDecodePassword = async (password, hashPassword) => {
   }
 };
 
+const userfindOneUser = (userId, relationship = true) => {
+  return new Promise(async (resolve, reject) => {
+    if (relationship) {
+      if (userId) {
+        try {
+          const user = await db.User.findOne({
+            where: {
+              id: userId,
+            },
+            attributes: {
+              exclude: ["passwordHash"],
+            },
+            include: [
+              {
+                model: db.AllCode,
+                as: "genderData",
+                attributes: ["id", "KeyMap", "valueEn", "valueVi"],
+              },
+              {
+                model: db.AllCode,
+                as: "roleData",
+                attributes: ["id", "KeyMap", "valueEn", "valueVi"],
+              },
+            ],
+            raw: true,
+            nest: true,
+          });
+          resolve({
+            statusCode: 2,
+            data: user,
+          });
+        } catch (error) {
+          console.log(error);
+          reject(error);
+        }
+      } else {
+        resolve("profile not found");
+      }
+    } else {
+      const user = await db.User.findOne({
+        where: {
+          id: userId,
+        },
+        attributes: {
+          exclude: ["passwordHash"],
+        },
+      });
+      resolve({
+        statusCode: 2,
+        data: user,
+      });
+    }
+  });
+};
+
 module.exports = {
   userCheckEmail,
   useHasPassword,
   useDecodePassword,
+  userfindOneUser,
 };

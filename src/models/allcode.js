@@ -7,16 +7,16 @@ module.exports = (sequelize, DataTypes) => {
      * This method is not a part of Sequelize lifecycle.
      * The `models/index` file will call this method automatically.
      */
-    // static associate(models) {
-    //   AllCode.hasMany(models.User, {
-    //     foreignKey: "genderId",
-    //     as: "genderData",
-    //   });
-    //   AllCode.hasMany(models.User, {
-    //     foreignKey: "positionId",
-    //     as: "positionData",
-    //   });
-    // }
+    static associate(models) {
+      AllCode.hasMany(models.User, {
+        foreignKey: "genderId",
+        as: "genderData",
+      });
+      AllCode.hasMany(models.User, {
+        foreignKey: "roleId",
+        as: "roleData",
+      });
+    }
   }
   AllCode.init(
     {

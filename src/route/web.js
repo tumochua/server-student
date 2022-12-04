@@ -2,7 +2,8 @@ import express from "express";
 import homeController from "../controllers/homeController";
 import auth from "../controllers/authController.js";
 import { useVerifyAccessToken } from "../jwt/useJwt";
-import { useMiddlewarekAccessToken } from "../middleware/index";
+import { useCheckErrorToken, useCheckRoles } from "../middleware/index";
+import { handleGetProfileUser } from "../controllers/profileController";
 
 let router = express.Router();
 
@@ -10,7 +11,8 @@ let initWebRoutes = (app) => {
   router.get("/", homeController.getHomePage);
   router.get(
     "/api-get-list-users",
-    useMiddlewarekAccessToken,
+    useCheckErrorToken,
+    useCheckRoles,
     homeController.handleGetlistUsers
   );
 
@@ -23,6 +25,13 @@ let initWebRoutes = (app) => {
   router.delete("/api-logout", auth.handeLogout);
   // router.post("/api-refresh-token", useVerifyAccessToken);
   // router.get("/api-verify-token", useVerifyAccessToken);
+
+  /// profile
+  router.get(
+    "/api-get-profile-user-by-id",
+    useCheckErrorToken,
+    handleGetProfileUser
+  );
 
   return app.use("/", router);
 };

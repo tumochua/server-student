@@ -19,18 +19,20 @@ const handleRegister = async (req, res, next) => {
 const hanldeLogin = async (req, res, next) => {
   try {
     const data = await handleLoginService(req.body);
-    res.cookie("accessToken", data.accessToken, {
-      httpOnly: true,
-      secure: true,
-    });
-    res.cookie("refreshToken", data.refreshToken, {
-      httpOnly: true,
-      secure: true,
-    });
-
+    if (data.accessToken && data.refreshToken) {
+      res.cookie("accessToken", data.accessToken, {
+        // httpOnly: true,
+        // secure: true,
+      });
+      res.cookie("refreshToken", data.refreshToken, {
+        // httpOnly: true,
+        // secure: true,
+      });
+    }
+    delete data.accessToken;
+    delete data.refreshToken;
     return res.status(200).json({
-      statusCode: 2,
-      data: data.user,
+      data: data,
     });
   } catch (error) {
     console.log(error);
