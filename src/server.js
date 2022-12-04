@@ -1,36 +1,39 @@
+require("dotenv").config();
 import express from "express";
+const app = express();
 import bodyParser from "body-parser";
 import viewEngine from "./config/viewEngine";
 import initWebRoutes from "./route/web";
 import connectDB from "./config/connectDB";
 import cors from "cors";
-// let app = express()
-
-// let cors = require('cors')
-
-require("dotenv").config();
-
-let app = express();
-
-// if (NODE_ENV !== 'production') {
-//   app.use(cors())
-// }
-// app.use(cors({ credentials: true, origin: true }));
-// app.use(cors());
+import createErrors from "http-errors";
+import cookieParser from "cookie-parser";
 app.use(
   cors({
-    origin: process.env.VUE_URL,
+    origin: process.env.REACTJS_URL,
+    credentials: true,
   })
 );
 
-app.use(bodyParser.json({ limit: "50mb" }));
-app.use(bodyParser.urlencoded({ limit: "50mb" }));
-
+// app.use(bodyParser.json({ limit: "50mb" }));
+// app.use(bodyParser.urlencoded({ limit: "50mb" }));
+app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 viewEngine(app);
 initWebRoutes(app);
+
+app.use((req, res, next) => {
+  next(createErrors.NotFound("This route does not exits"));
+});
+
+app.use((eror, req, res, next) => {
+  res.json({
+    status: eror.status || 500,
+    message: eror.message,
+  });
+});
 
 connectDB();
 

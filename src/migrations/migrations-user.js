@@ -17,44 +17,47 @@ module.exports = {
         unique: true,
         isEmail: true,
       },
+      address: {
+        type: Sequelize.STRING,
+      },
       passwordHash: {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      mobile: {
-        type: Sequelize.STRING,
-        unique: true,
+      dob: {
+        type: Sequelize.DATE,
       },
       roleId: {
         allowNull: false,
         type: Sequelize.STRING,
-        defaultValue: "0",
+        defaultValue: "R0",
       },
-      genderId: {
-        allowNull: false,
-        type: Sequelize.STRING,
-        defaultValue: "0",
-      },
-      address: {
-        type: Sequelize.STRING,
-      },
-      positionId: {
-        type: Sequelize.STRING,
-      },
-      profile: {
-        type: Sequelize.TEXT,
-      },
-      dateOfBirth: {
-        type: Sequelize.DATE,
+      mobile: {
+        type: Sequelize.INTEGER,
+        unique: true,
       },
       parentID: {
         type: Sequelize.STRING,
       },
-      isLogin: {
-        type: Sequelize.BOOLEAN,
+      genderId: {
+        allowNull: false,
+        type: Sequelize.STRING,
+        defaultValue: "M",
+      },
+      profile: {
+        type: Sequelize.TEXT,
+      },
+      date_of_join: {
+        type: Sequelize.DATE,
       },
       status: {
         type: Sequelize.BOOLEAN,
+      },
+      last_login: {
+        type: Sequelize.DATE,
+      },
+      image: {
+        type: Sequelize.BLOB("long"),
       },
 
       createdAt: {
