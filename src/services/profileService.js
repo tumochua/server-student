@@ -4,6 +4,7 @@ import { userfindOneUser, userCheckEmail } from "../use/hooks";
 const profileService = (userId) => {
   return new Promise(async (resolve, reject) => {
     try {
+      /// findAll
       const data = await db.User.findOne({
         where: {
           id: userId,
@@ -22,10 +23,32 @@ const profileService = (userId) => {
             as: "roleData",
             attributes: ["id", "KeyMap", "valueEn", "valueVi"],
           },
+          {
+            model: db.Parents,
+            as: "parentData",
+            include: [
+              {
+                model: db.AllCode,
+                as: "genderMommyData",
+                attributes: ["id", "KeyMap", "valueEn", "valueVi"],
+              },
+              {
+                model: db.AllCode,
+                as: "genderFatherData",
+                attributes: ["id", "KeyMap", "valueEn", "valueVi"],
+              },
+            ],
+          },
+          {
+            model: db.Class_Students,
+            as: "classData",
+            attributes: ["id", "keyMap", "studentId", "className"],
+          },
         ],
         raw: true,
         nest: true,
       });
+      // console.log("data", data);
       const base64 = await Buffer.from(data.image, "base64").toString("binary");
       data.image = base64;
       resolve({
@@ -66,7 +89,41 @@ const handleUpdateService = (data, userId) => {
   });
 };
 
+const handleGetListStudentService = (keyMap) => {
+  // console.log("className", keyMap);
+  return new Promise(async (resolve, reject) => {
+    try {
+      /// findAll
+      const resopnseClass = await db.Class_Students.findAll({
+        where: {
+          keyMap: keyMap,
+        },
+        attributes: {
+          exclude: ["courseId", "teacherId", "createdAt", "updatedAt"],
+        },
+        // include: [
+        //   {
+        //     model: db.User,
+        //     as: "classData",
+        //     attributes: ["fullName"],
+        //   },
+        // ],
+        // raw: true,
+        // nest: true,
+      });
+      console.log("resopnseClass", resopnseClass);
+      // resolve({
+      //   statusCode: 2,
+      //   resopnseClass,
+      // });
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
+
 module.exports = {
   profileService,
   handleUpdateService,
+  handleGetListStudentService,
 };

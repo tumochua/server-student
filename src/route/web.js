@@ -6,6 +6,7 @@ import { useCheckErrorToken, useCheckRoles } from "../middleware/index";
 import {
   handleGetProfileUser,
   handleEditUser,
+  handleApiGetListStudentOfClass,
 } from "../controllers/profileController";
 
 let router = express.Router();
@@ -36,6 +37,11 @@ let initWebRoutes = (app) => {
     handleGetProfileUser
   );
   router.put("/api-edit-user", useCheckErrorToken, handleEditUser);
+  router.get(
+    "/api-list-students-of-class",
+    useCheckErrorToken,
+    handleApiGetListStudentOfClass
+  );
 
   return app.use("/", router);
 };
