@@ -25,7 +25,7 @@ module.exports = {
         allowNull: false,
       },
       dob: {
-        type: Sequelize.DATE,
+        type: Sequelize.STRING,
       },
       roleId: {
         allowNull: false,

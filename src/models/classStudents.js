@@ -12,10 +12,6 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: "classId",
         as: "classData",
       });
-      // Class_Students.belongsTo(models.User, {
-      //   foreignKey: "keyMap",
-      //   as: "keyMapData",
-      // });
     }
   }
   Class_Students.init(

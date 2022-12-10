@@ -24,15 +24,13 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: "parentId",
         as: "parentData",
       });
+
+      ///student
       User.belongsTo(models.Class_Students, {
         foreignKey: "classId",
         targetKey: "keyMap",
         as: "classData",
       });
-      // User.hasMany(models.Class_Students, {
-      //   foreignKey: "keyMap",
-      //   as: "keyMapData",
-      // });
     }
   }
   User.init(
@@ -41,11 +39,11 @@ module.exports = (sequelize, DataTypes) => {
       email: DataTypes.STRING,
       address: DataTypes.STRING,
       passwordHash: DataTypes.STRING,
-      dob: DataTypes.DATE,
+      dob: DataTypes.STRING,
       roleId: DataTypes.STRING,
       mobile: DataTypes.INTEGER,
       genderId: DataTypes.STRING,
-      classId: DataTypes.INTEGER,
+      classId: DataTypes.STRING,
       profile: DataTypes.TEXT,
       date_of_join: DataTypes.DATE,
       status: DataTypes.BOOLEAN,
