@@ -2,61 +2,46 @@
 
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable("Users", {
+    await queryInterface.createTable("posts", {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER,
       },
-      fullName: {
+      userId: {
         type: Sequelize.STRING,
       },
-      email: {
-        type: Sequelize.STRING,
-        unique: true,
-        isEmail: true,
-      },
-      address: {
+      commentsId: {
         type: Sequelize.STRING,
       },
-      passwordHash: {
-        type: Sequelize.STRING,
-        allowNull: false,
-      },
-      dob: {
+      date: {
         type: Sequelize.STRING,
       },
-      roleId: {
-        allowNull: false,
+      title: {
         type: Sequelize.STRING,
-        defaultValue: "R0",
       },
-      mobile: {
-        type: Sequelize.INTEGER,
-        unique: true,
+      contentHTML: {
+        type: Sequelize.TEXT("long"),
       },
-      genderId: {
-        allowNull: false,
-        type: Sequelize.STRING,
-        defaultValue: "M",
+      contentMarkdown: {
+        type: Sequelize.TEXT("long"),
       },
-      profile: {
-        type: Sequelize.TEXT,
-      },
-      date_of_join: {
-        type: Sequelize.DATE,
+      description: {
+        type: Sequelize.TEXT("long"),
       },
       status: {
-        type: Sequelize.BOOLEAN,
+        type: Sequelize.STRING,
       },
-      last_login: {
-        type: Sequelize.DATE,
+      type: {
+        type: Sequelize.STRING,
+      },
+      like: {
+        type: Sequelize.STRING,
       },
       image: {
         type: Sequelize.BLOB("long"),
       },
-
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,
@@ -68,6 +53,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable("Users");
+    await queryInterface.dropTable("posts");
   },
 };

@@ -54,12 +54,11 @@ const userfindOneUser = (userId, relationship = true) => {
                 attributes: ["id", "KeyMap", "valueEn", "valueVi"],
               },
             ],
-            raw: true,
+            raw: false,
             nest: true,
           });
           resolve({
-            statusCode: 2,
-            data: user,
+            user,
           });
         } catch (error) {
           console.log(error);
@@ -72,14 +71,14 @@ const userfindOneUser = (userId, relationship = true) => {
       const user = await db.User.findOne({
         where: {
           id: userId,
+          raw: false,
         },
         attributes: {
           exclude: ["passwordHash"],
         },
       });
       resolve({
-        statusCode: 2,
-        data: user,
+        user,
       });
     }
   });

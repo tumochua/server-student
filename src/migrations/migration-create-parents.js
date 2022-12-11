@@ -1,60 +1,63 @@
 "use strict";
-
 module.exports = {
-  async up(queryInterface, Sequelize) {
-    await queryInterface.createTable("Users", {
+  up: async (queryInterface, Sequelize) => {
+    await queryInterface.createTable("parents", {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER,
       },
-      fullName: {
+      parentId: {
+        type: Sequelize.INTEGER,
+      },
+      fullNameFather: {
+        type: Sequelize.STRING,
+      },
+      fullNameMommy: {
         type: Sequelize.STRING,
       },
       email: {
         type: Sequelize.STRING,
         unique: true,
-        isEmail: true,
       },
-      address: {
+      addressFather: {
         type: Sequelize.STRING,
       },
-      passwordHash: {
-        type: Sequelize.STRING,
-        allowNull: false,
-      },
-      dob: {
+      addressMommy: {
         type: Sequelize.STRING,
       },
-      roleId: {
-        allowNull: false,
+      dobFather: {
         type: Sequelize.STRING,
-        defaultValue: "R0",
+      },
+      dobMommy: {
+        type: Sequelize.STRING,
       },
       mobile: {
-        type: Sequelize.INTEGER,
-        unique: true,
+        type: Sequelize.STRING,
       },
-      genderId: {
-        allowNull: false,
+      genderFatherId: {
         type: Sequelize.STRING,
         defaultValue: "M",
       },
+      genderMommyId: {
+        type: Sequelize.STRING,
+        defaultValue: "F",
+      },
+      image: {
+        type: Sequelize.BLOB,
+      },
       profile: {
-        type: Sequelize.TEXT,
+        type: Sequelize.STRING,
       },
       date_of_join: {
-        type: Sequelize.DATE,
+        type: Sequelize.TEXT,
       },
       status: {
         type: Sequelize.BOOLEAN,
       },
       last_login: {
-        type: Sequelize.DATE,
-      },
-      image: {
-        type: Sequelize.BLOB("long"),
+        type: Sequelize.STRING,
       },
 
       createdAt: {
@@ -67,7 +70,7 @@ module.exports = {
       },
     });
   },
-  async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable("Users");
+  down: async (queryInterface, Sequelize) => {
+    await queryInterface.dropTable("parents");
   },
 };

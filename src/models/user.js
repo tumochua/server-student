@@ -9,6 +9,7 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
+      // console.log("models", models);
       User.belongsTo(models.AllCode, {
         foreignKey: "genderId",
         targetKey: "KeyMap",
@@ -19,6 +20,17 @@ module.exports = (sequelize, DataTypes) => {
         targetKey: "KeyMap",
         as: "roleData",
       });
+      User.hasOne(models.Parents, {
+        foreignKey: "parentId",
+        as: "parentData",
+      });
+
+      ///student
+      User.belongsTo(models.Class_Students, {
+        foreignKey: "classId",
+        targetKey: "keyMap",
+        as: "classData",
+      });
     }
   }
   User.init(
@@ -27,11 +39,11 @@ module.exports = (sequelize, DataTypes) => {
       email: DataTypes.STRING,
       address: DataTypes.STRING,
       passwordHash: DataTypes.STRING,
-      dob: DataTypes.DATE,
+      dob: DataTypes.STRING,
       roleId: DataTypes.STRING,
       mobile: DataTypes.INTEGER,
-      parentID: DataTypes.STRING,
       genderId: DataTypes.STRING,
+      classId: DataTypes.STRING,
       profile: DataTypes.TEXT,
       date_of_join: DataTypes.DATE,
       status: DataTypes.BOOLEAN,

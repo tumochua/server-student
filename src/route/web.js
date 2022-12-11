@@ -3,7 +3,11 @@ import homeController from "../controllers/homeController";
 import auth from "../controllers/authController.js";
 import { useVerifyAccessToken } from "../jwt/useJwt";
 import { useCheckErrorToken, useCheckRoles } from "../middleware/index";
-import { handleGetProfileUser } from "../controllers/profileController";
+import {
+  handleGetProfileUser,
+  handleEditUser,
+  handleApiGetListStudentOfClass,
+} from "../controllers/profileController";
 
 let router = express.Router();
 
@@ -31,6 +35,12 @@ let initWebRoutes = (app) => {
     "/api-get-profile-user-by-id",
     useCheckErrorToken,
     handleGetProfileUser
+  );
+  router.put("/api-edit-user", useCheckErrorToken, handleEditUser);
+  router.get(
+    "/api-list-students-of-class",
+    useCheckErrorToken,
+    handleApiGetListStudentOfClass
   );
 
   return app.use("/", router);
