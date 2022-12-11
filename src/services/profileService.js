@@ -88,56 +88,51 @@ const handleUpdateService = (data, userId) => {
     }
   });
 };
-// app.get("/vehicles", (req, res) => {
-//   vehicleModel
-//     .findAll({
-//       attributes: { exclude: ["CustomerId"] },
-//       include: {
-//         model: CustomerModel,
-//         attributes: ["CustomerName", "phoneNo"],
-//         right: true,
-//       },
-//     })
-//     .then((data) => {
-//       console.log(data);
-//       res.status(200).json({
-//         status: 1,
-//         data: data,
-//       });
-//     })
-//     .catch((err) => {
-//       res.status(500).json({
-//         status: 0,
-//         message: "there is some error!!" + err,
-//       });
-//     });
-// });
+
 const handleGetListStudentService = (className) => {
   // console.log("className", className);
   return new Promise(async (resolve, reject) => {
     try {
       /// findAll
-      const resopnseClass = await db.Class_Students.findAll({
-        attributes: ["id", "keyMap", "className"],
-        include: {
-          model: db.User,
-          as: "classData",
-          attributes: ["id", "fullName", "classId"],
-          // raw: true,
-        },
+      const resopnseClass = await db.Class_Students.findOne({
         where: {
           className: className,
         },
-        // raw: true,
+        attributes: ["id", "keyMap", "className"],
+        include: [
+          {
+            // separate: true,
+            model: db.User,
+            as: "classData",
+            attributes: ["id", "fullName", "dob", "classId"],
+            // separate: true, // <--- Run separate query
+            // limit: 2,
+          },
+        ],
         raw: false,
         nest: true,
       });
-      let plainClass = resopnseClass.map((x) => x.get({ plain: true }));
-      plainClass = JSON.stringify(plainClass);
+      // console.log("resopnseClass", resopnseClass);
       resolve({
         statusCode: 2,
-        data: plainClass,
+        data: JSON.stringify(resopnseClass),
       });
+      // let plainClass = resopnseClass.classData.map((x) =>
+      //   x.get({ plain: true })
+      // );
+      // plainClass = JSON.stringify(plainClass);
+      // console.log("plainClass", plainClass);
+      // resolve({
+      //   statusCode: 2,
+      //   data: plainClass,
+      // });
+      // console.log("resopnseClass", resopnseClass.rows);
+      // let plainClass = resopnseClass.map((x) => x.get({ plain: true }));
+      // plainClass = JSON.stringify(plainClass);
+      // resolve({
+      //   statusCode: 2,
+      //   data: plainClass,
+      // });
     } catch (error) {
       reject(error);
     }
