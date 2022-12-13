@@ -31,6 +31,11 @@ module.exports = (sequelize, DataTypes) => {
         targetKey: "keyMap",
         as: "classData",
       });
+      User.hasMany(models.Post, {
+        foreignKey: "userId",
+        targetKey: "userId",
+        as: "userData",
+      });
     }
   }
   User.init(

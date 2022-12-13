@@ -9,6 +9,16 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
+      Post.belongsTo(models.User, {
+        foreignKey: "userId",
+        // targetKey: "userId",
+        as: "userData",
+      });
+      Post.hasMany(models.Like, {
+        foreignKey: "postId",
+        targetKey: "postId",
+        as: "postsData",
+      });
     }
   }
   Post.init(
@@ -22,7 +32,7 @@ module.exports = (sequelize, DataTypes) => {
       description: DataTypes.TEXT("long"),
       status: DataTypes.STRING,
       type: DataTypes.STRING,
-      like: DataTypes.INTEGER,
+      likeId: DataTypes.INTEGER,
       image: DataTypes.BLOB("long"),
     },
     {
