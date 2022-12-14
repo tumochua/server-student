@@ -3,7 +3,7 @@ import db from "../models/index";
 const handleServiceCreatePost = (posts, userId) => {
   return new Promise(async (resolve, reject) => {
     try {
-      //   console.log("userId", userId);
+      // console.log("userId", userId);
       // console.log("posts", posts);
       const { title, textMarkDown, type, textHtmlMarkDown } = posts;
 
@@ -74,28 +74,41 @@ const handleServiceGetListPosts = () => {
 const handeServiceDetailPost = ({ postId }) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const post = await db.Post.findOne({
+      const posts = await db.Post.findOne({
         where: {
           id: postId,
         },
-        // attributes: ["id", "userId", "date","title"],
+        attributes: {
+          exclude: ["createdAt", "updatedAt"],
+        },
         include: [
           {
             model: db.User,
             as: "userData",
             attributes: ["id", "fullName", "image"],
           },
+          {
+            model: db.Like,
+            as: "likeData",
+            attributes: ["id", "size"],
+          },
         ],
-        raw: true,
+        raw: false,
         nest: true,
       });
-      const base64 = await Buffer.from(post.userData.image, "base64").toString(
-        "binary"
-      );
-      post.userData.image = base64;
+      // console.log("post", post.userData.image);
+      const postsCopy = JSON.parse(JSON.stringify(posts));
+      // console.log("postsCopy", postsCopy);
+      if (postsCopy.userData.image) {
+        const base64 = await Buffer.from(
+          postsCopy.userData.image,
+          "base64"
+        ).toString("binary");
+        postsCopy.userData.image = base64;
+      }
       resolve({
         statusCode: 2,
-        post,
+        post: postsCopy,
       });
     } catch (error) {
       reject(error);
@@ -103,78 +116,76 @@ const handeServiceDetailPost = ({ postId }) => {
   });
 };
 
-const handleServiceLikePost = (data) => {
+const handleServiceLikePost = (data, dataUserId) => {
   return new Promise(async (resolve, reject) => {
     try {
-      // console.log("data", data);
-      const { postId } = data;
-      if (postId) {
-        const postData = await db.Post.findOne({
-          where: {
-            id: postId,
+      const postData = await db.Post.findOne({
+        where: {
+          id: data.postId,
+        },
+        attributes: ["id", "likeId", "title"],
+        include: [
+          // {
+          //   model: db.User,
+          //   as: "userData",
+          //   attributes: ["id", "fullName"],
+          // },
+          {
+            model: db.Like,
+            as: "likeData",
+            attributes: ["id", "postId", "size", "userId"],
           },
-          attributes: ["id", "likeId"],
-          include: [
-            {
-              model: db.User,
-              as: "userData",
-              attributes: ["id", "fullName"],
-            },
-            // {
-            //   model: db.Like,
-            //   as: "postsData",
-            //   attributes: [
-            //     "id",
-            //     "postId",
-            //     "status",
-            //     "size",
-            //     "commentId",
-            //     "time",
-            //   ],
-            // },
-          ],
-          raw: false,
-          nest: true,
-        });
+        ],
+        raw: false,
+        nest: true,
+      });
+      const postsCopy = JSON.parse(JSON.stringify(postData));
 
-        if (postData) {
-          const userId = postData.userData.id;
-          const postId = postData.id;
-          postData.likeId = postData.id;
-          await postData.save();
+      if (postsCopy) {
+        postData.likeId = postsCopy.id;
+        await postData.save();
+        // resolve();
+      }
+      if (postsCopy && postsCopy.likeData.length === 0) {
+        await db.Like.create({
+          userId: dataUserId,
+          postId: postsCopy.id,
+          status: true,
+          size: +1,
+          time: new Date().getTime(),
+        });
+        resolve("like");
+      } else {
+        // console.log("postsCopy", postsCopy);
+        // console.log("dataUserId", dataUserId);
+        let isLike = false;
+        postsCopy.likeData.forEach(async (element) => {
+          if (
+            dataUserId === element.userId &&
+            postsCopy.likeId === element.postId
+          ) {
+            isLike = true;
+            // size += element.size;
+          }
+        });
+        if (isLike) {
+          await db.Like.destroy({
+            where: {
+              postId: postsCopy.likeId,
+              userId: dataUserId,
+            },
+          });
+          resolve("delete");
+        } else {
           await db.Like.create({
-            userId: userId,
-            postId: postId,
+            userId: dataUserId,
+            postId: postsCopy.id,
             status: true,
             size: +1,
             time: new Date().getTime(),
           });
+          resolve("like");
         }
-        // const postsCopy = JSON.parse(JSON.stringify(postData));
-        // console.log("postsCopy", postsCopy);
-      }
-    } catch (error) {
-      reject(error);
-    }
-  });
-};
-
-const handleServiceQuitLikePosts = (postId) => {
-  return new Promise(async (resolve, reject) => {
-    try {
-      const postsData = await db.Post.findOne({
-        where: {
-          id: postId.postId,
-        },
-        attributes: ["id", "likeId"],
-      });
-
-      if (postsData) {
-        await db.Like.destroy({
-          where: {
-            postId: postsData.likeId,
-          },
-        });
       }
     } catch (error) {
       reject(error);
@@ -187,5 +198,5 @@ module.exports = {
   handleServiceGetListPosts,
   handeServiceDetailPost,
   handleServiceLikePost,
-  handleServiceQuitLikePosts,
+  // handleServiceQuitLikePosts,
 };

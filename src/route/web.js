@@ -54,7 +54,7 @@ let initWebRoutes = (app) => {
   router.get("/api-get-list-posts", useCheckErrorToken, handleGetListPosts);
   router.get("/api-get-detail-post-by-id", useCheckErrorToken, handeDetailPost);
   router.put("/api-like-post", useCheckErrorToken, handleLikePost);
-  router.delete("/api-quit-like-post", useCheckErrorToken, handleQuitLikePost);
+  // router.delete("/api-quit-like-post", useCheckErrorToken, handleQuitLikePost);
 
   return app.use("/", router);
 };

@@ -49,8 +49,12 @@ const profileService = (userId) => {
         nest: true,
       });
       // console.log("data", data.classId);
-      const base64 = await Buffer.from(data.image, "base64").toString("binary");
-      data.image = base64;
+      if (data.image) {
+        const base64 = await Buffer.from(data.image, "base64").toString(
+          "binary"
+        );
+        data.image = base64;
+      }
       resolve({
         statusCode: 2,
         data,
