@@ -1,11 +1,13 @@
+import { Op } from "sequelize";
 import db from "../models/index";
+import { PAGE_SIZE } from "../utils/constants";
 
 const handleServiceCreatePost = (posts, userId) => {
   return new Promise(async (resolve, reject) => {
     try {
       // console.log("userId", userId);
       // console.log("posts", posts);
-      const { title, textMarkDown, type, textHtmlMarkDown } = posts;
+      const { title, textMarkDown, type, textHtmlMarkDown, image } = posts;
 
       if (!title || !textMarkDown || !type) {
         resolve({
@@ -28,6 +30,7 @@ const handleServiceCreatePost = (posts, userId) => {
           type: type,
           date: new Date().getTime(),
           // likeId:
+          image: image,
         });
         resolve({ statusCode: 2, message: "create post successful" });
       }
@@ -37,11 +40,16 @@ const handleServiceCreatePost = (posts, userId) => {
   });
 };
 
-const handleServiceGetListPosts = () => {
+const handleServiceGetListPosts = (currentPage) => {
   return new Promise(async (resolve, reject) => {
     try {
+      const skip = (currentPage - 1) * PAGE_SIZE;
       const posts = await db.Post.findAll({
-        attributes: ["id", "title", "date", "userId"],
+        limit: PAGE_SIZE,
+        offset: skip,
+        /// DESC giảm dần
+        order: [["id", "DESC"]],
+        attributes: ["id", "title", "date", "userId", "type", "image"],
         include: [
           {
             model: db.User,
@@ -54,16 +62,19 @@ const handleServiceGetListPosts = () => {
       });
       // console.log("posts", posts);
       posts.forEach(async (element) => {
-        // console.log("element", element.userData.image);
-        const base64 = await Buffer.from(
-          element.userData.image,
-          "base64"
-        ).toString("binary");
-        element.userData.image = base64;
+        if (element.userData.image) {
+          const base64 = await Buffer.from(
+            element.userData.image,
+            "base64"
+          ).toString("binary");
+          element.userData.image = base64;
+        }
       });
       resolve({
         statusCode: 2,
         posts,
+        currentPage,
+        pageSize: PAGE_SIZE,
       });
     } catch (error) {
       reject(error);
@@ -90,7 +101,7 @@ const handeServiceDetailPost = ({ postId }) => {
           {
             model: db.Like,
             as: "likeData",
-            attributes: ["id", "size"],
+            attributes: ["id", "size", "userId"],
           },
         ],
         raw: false,
@@ -193,10 +204,95 @@ const handleServiceLikePost = (data, dataUserId) => {
   });
 };
 
+const handleServiceSearchPosts = (valueSearch) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const { value, type } = valueSearch;
+      // console.log(type);
+      // console.log(value);
+      if (value) {
+        const searchPosts = await db.Post.findAll({
+          where: {
+            // title: value,
+            title: {
+              [Op.like]: "%" + value + "%",
+            },
+          },
+          include: [
+            {
+              model: db.User,
+              as: "userData",
+              attributes: ["id", "fullName", "image"],
+            },
+          ],
+          raw: true,
+          nest: true,
+        });
+
+        // console.log(searchPosts);
+        resolve({
+          statusCode: 2,
+          data: searchPosts,
+        });
+      }
+      if (type) {
+        const searchPosts = await db.Post.findAll({
+          where: {
+            // title: value,
+            type: {
+              [Op.like]: "%" + type + "%",
+            },
+          },
+          include: [
+            {
+              model: db.User,
+              as: "userData",
+              attributes: ["id", "fullName", "image"],
+            },
+          ],
+          raw: true,
+          nest: true,
+        });
+        resolve({
+          statusCode: 2,
+          data: searchPosts,
+        });
+      }
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
+
+const handleServiceGetAllPostsByUser = (userId) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      // const skip = (currentPage - 1) * PAGE_SIZE;
+      const postsUser = await db.Post.findAll({
+        limit: 5,
+        offset: 0,
+        where: {
+          userId: userId,
+        },
+        order: [["id", "DESC"]],
+      });
+      resolve({
+        statusCode: 2,
+        data: postsUser,
+        // data: JSON.stringify(postsUser),
+      });
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
+
 module.exports = {
   handleServiceCreatePost,
   handleServiceGetListPosts,
   handeServiceDetailPost,
   handleServiceLikePost,
+  handleServiceSearchPosts,
+  handleServiceGetAllPostsByUser,
   // handleServiceQuitLikePosts,
 };

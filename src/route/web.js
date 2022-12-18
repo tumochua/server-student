@@ -13,7 +13,8 @@ import {
   handleGetListPosts,
   handeDetailPost,
   handleLikePost,
-  handleQuitLikePost,
+  handleSearchPosts,
+  handleGetAllPostsByUser,
 } from "../controllers/postController";
 
 let router = express.Router();
@@ -54,6 +55,13 @@ let initWebRoutes = (app) => {
   router.get("/api-get-list-posts", useCheckErrorToken, handleGetListPosts);
   router.get("/api-get-detail-post-by-id", useCheckErrorToken, handeDetailPost);
   router.put("/api-like-post", useCheckErrorToken, handleLikePost);
+  router.get("/api-search-posts", useCheckErrorToken, handleSearchPosts);
+  router.get(
+    "/api-get-all-posts-by-user",
+    useCheckErrorToken,
+    handleGetAllPostsByUser
+  );
+
   // router.delete("/api-quit-like-post", useCheckErrorToken, handleQuitLikePost);
 
   return app.use("/", router);

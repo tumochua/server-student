@@ -4,6 +4,8 @@ import {
   handeServiceDetailPost,
   handleServiceLikePost,
   handleServiceQuitLikePosts,
+  handleServiceSearchPosts,
+  handleServiceGetAllPostsByUser,
 } from "../services/postService";
 
 const handleCreatePost = async (req, res) => {
@@ -21,7 +23,9 @@ const handleCreatePost = async (req, res) => {
 
 const handleGetListPosts = async (req, res) => {
   try {
-    const data = await handleServiceGetListPosts();
+    const currentPage = +req.query.page;
+    const data = await handleServiceGetListPosts(currentPage);
+    // console.log(data);
     return res.status(200).json(data);
   } catch (error) {
     console.log(error);
@@ -65,10 +69,36 @@ const handleQuitLikePost = async (req, res) => {
   }
 };
 
+const handleSearchPosts = async (req, res) => {
+  try {
+    // console.log(req.query);
+    const searchValue = req.query;
+    // const currentPage = +req.query.page;
+    const data = await handleServiceSearchPosts(searchValue);
+    return res.status(200).json(data);
+  } catch (error) {
+    console.log(error);
+    return res.status(200).json(error.message);
+  }
+};
+
+const handleGetAllPostsByUser = async (req, res) => {
+  try {
+    const userId = req.userId;
+    const data = await handleServiceGetAllPostsByUser(userId);
+    return res.status(200).json(data);
+  } catch (error) {
+    console.log(error);
+    return res.status(200).json(error.message);
+  }
+};
+
 module.exports = {
   handleCreatePost,
   handleGetListPosts,
   handeDetailPost,
   handleLikePost,
   handleQuitLikePost,
+  handleSearchPosts,
+  handleGetAllPostsByUser,
 };
