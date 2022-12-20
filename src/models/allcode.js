@@ -8,6 +8,7 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
+      /// user
       AllCode.hasMany(models.User, {
         foreignKey: "genderId",
         as: "genderData",
@@ -16,6 +17,8 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: "roleId",
         as: "roleData",
       });
+
+      //// Parents
       AllCode.hasMany(models.Parents, {
         foreignKey: "genderMommyId",
         as: "genderMommyData",
@@ -23,6 +26,13 @@ module.exports = (sequelize, DataTypes) => {
       AllCode.hasMany(models.Parents, {
         foreignKey: "genderFatherId",
         as: "genderFatherData",
+      });
+
+      // / posts
+      AllCode.hasMany(models.Post, {
+        foreignKey: "status",
+        // targetKey: "KeyMap",
+        as: "statusData",
       });
     }
   }

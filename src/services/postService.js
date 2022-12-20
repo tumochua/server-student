@@ -47,20 +47,38 @@ const handleServiceGetListPosts = (currentPage) => {
       const posts = await db.Post.findAll({
         limit: PAGE_SIZE,
         offset: skip,
+        where: {
+          status: "S1",
+        },
         /// DESC giảm dần
         order: [["id", "DESC"]],
-        attributes: ["id", "title", "date", "userId", "type", "image"],
+        /// giảm tăng
+        // order: [["id", "ASC"]],
+        attributes: [
+          "id",
+          "title",
+          "date",
+          "userId",
+          "type",
+          "image",
+          "status",
+        ],
         include: [
           {
             model: db.User,
             as: "userData",
-            attributes: ["id", "fullName", "image"],
+            attributes: ["id", "fullName", "image", "roleId"],
+          },
+          {
+            model: db.AllCode,
+            as: "statusData",
+            attributes: ["id", "KeyMap", "valueEn", "valueVi"],
           },
         ],
         raw: true,
         nest: true,
       });
-      // console.log("posts", posts);
+      // console.log("posts", JSON.stringify(posts));
       posts.forEach(async (element) => {
         if (element.userData.image) {
           const base64 = await Buffer.from(
@@ -287,6 +305,151 @@ const handleServiceGetAllPostsByUser = (userId) => {
   });
 };
 
+const handleServiceDeletePosts = ({ postsData }) => {
+  // console.log(postsData);
+  return new Promise(async (resolve, reject) => {
+    try {
+      if (!postsData) {
+        resolve({
+          statusCode: 4,
+          message: "you are missing a required parameter",
+        });
+      } else {
+        const type = postsData.type;
+        const postsId = postsData.postId;
+        if (type === "delete") {
+          const foundPosts = await db.Post.findOne({
+            where: {
+              id: postsId,
+            },
+            attributes: ["id", "userId", "likeId"],
+          });
+          if (!foundPosts) {
+            resolve({
+              statusCode: 4,
+              message: `the posts ins't exist`,
+            });
+          }
+          await db.Post.destroy({
+            where: {
+              id: postsId,
+            },
+          });
+          await db.Like.destroy({
+            where: {
+              postId: postsId,
+            },
+          });
+          resolve({
+            statusCode: 2,
+            message: `the posts in deleted`,
+          });
+        }
+      }
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
+
+const handleServiceEditPosts = (postsData) => {
+  return new Promise(async (resolve, reject) => {
+    // console.log(postsData);
+    try {
+      if (!postsData) {
+        resolve({
+          statusCode: 4,
+          message: "you are missing a required parameter",
+        });
+      }
+      const resultPosts = await db.Post.findOne({
+        where: {
+          id: postsData.postId,
+        },
+        raw: false,
+        nest: true,
+      });
+      if (resultPosts && postsData.editPosts) {
+        resultPosts.title = postsData.editPosts.title;
+        resultPosts.contentMarkdown = postsData.editPosts.textMarkDown;
+        resultPosts.contentHTML = postsData.editPosts.textHtmlMarkDown;
+        resultPosts.type = postsData.editPosts.type;
+        resultPosts.image = postsData.editPosts.image;
+
+        await resultPosts.save();
+
+        resolve({
+          statusCode: 2,
+          message: "update the posts succeeds",
+        });
+      }
+      resolve({ statusCode: 2, data: resultPosts });
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
+
+const handleServiceVerifyPosts = ({ status }) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      if (!status) {
+        resolve({
+          statusCode: 4,
+          message: "you are missing a required parameter",
+        });
+      }
+      const posts = await db.Post.findAll({
+        limit: 7,
+        offset: 0,
+        where: {
+          status: status,
+        },
+        attributes: ["id", "title", "status", "date"],
+      });
+      resolve({
+        statusCode: 2,
+        data: posts,
+      });
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
+
+const handleServiceConfirmPosts = (statusData) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const postsId = statusData.status.postsId;
+      const status = statusData.status.status;
+      if (!postsId) {
+        resolve({
+          statusCode: 4,
+          message: "you are missing a required parameter",
+        });
+      }
+      const posts = await db.Post.findOne({
+        where: {
+          id: postsId,
+        },
+        attributes: ["id", "title", "status", "date"],
+        raw: false,
+        nest: true,
+      });
+      if (posts) {
+        posts.status = status;
+        await posts.save();
+        resolve({
+          statusCode: 2,
+          message: "confirm the posts succeeds",
+        });
+      }
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
+
 module.exports = {
   handleServiceCreatePost,
   handleServiceGetListPosts,
@@ -294,5 +457,9 @@ module.exports = {
   handleServiceLikePost,
   handleServiceSearchPosts,
   handleServiceGetAllPostsByUser,
+  handleServiceDeletePosts,
+  handleServiceEditPosts,
+  handleServiceVerifyPosts,
+  handleServiceConfirmPosts,
   // handleServiceQuitLikePosts,
 };

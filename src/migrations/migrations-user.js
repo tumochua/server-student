@@ -41,6 +41,10 @@ module.exports = {
         type: Sequelize.STRING,
         defaultValue: "M",
       },
+      classId: {
+        allowNull: false,
+        type: Sequelize.STRING,
+      },
       profile: {
         type: Sequelize.TEXT,
       },

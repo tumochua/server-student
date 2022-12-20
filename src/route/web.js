@@ -15,6 +15,10 @@ import {
   handleLikePost,
   handleSearchPosts,
   handleGetAllPostsByUser,
+  handleDeletePosts,
+  handleEditPosts,
+  handleVerifyPosts,
+  handleConfirmPosts,
 } from "../controllers/postController";
 
 let router = express.Router();
@@ -61,6 +65,10 @@ let initWebRoutes = (app) => {
     useCheckErrorToken,
     handleGetAllPostsByUser
   );
+  router.delete("/api-delete-posts", useCheckErrorToken, handleDeletePosts);
+  router.put("/api-edit-posts-by-user", useCheckErrorToken, handleEditPosts);
+  router.get("/api-get-verify-posts", useCheckErrorToken, handleVerifyPosts);
+  router.put("/api-confirm-posts", useCheckErrorToken, handleConfirmPosts);
 
   // router.delete("/api-quit-like-post", useCheckErrorToken, handleQuitLikePost);
 

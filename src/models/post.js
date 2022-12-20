@@ -19,6 +19,11 @@ module.exports = (sequelize, DataTypes) => {
         targetKey: "postId",
         as: "likeData",
       });
+      Post.belongsTo(models.AllCode, {
+        foreignKey: "status",
+        targetKey: "KeyMap",
+        as: "statusData",
+      });
     }
   }
   Post.init(

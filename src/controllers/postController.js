@@ -6,6 +6,10 @@ import {
   handleServiceQuitLikePosts,
   handleServiceSearchPosts,
   handleServiceGetAllPostsByUser,
+  handleServiceDeletePosts,
+  handleServiceEditPosts,
+  handleServiceVerifyPosts,
+  handleServiceConfirmPosts,
 } from "../services/postService";
 
 const handleCreatePost = async (req, res) => {
@@ -93,6 +97,49 @@ const handleGetAllPostsByUser = async (req, res) => {
   }
 };
 
+const handleDeletePosts = async (req, res) => {
+  try {
+    const postsData = req.body;
+    const data = await handleServiceDeletePosts(postsData);
+    return res.status(200).json(data);
+  } catch (error) {
+    console.log(error);
+    return res.status(200).json(error.message);
+  }
+};
+
+const handleEditPosts = async (req, res) => {
+  try {
+    const postsData = req.body;
+    const data = await handleServiceEditPosts(postsData);
+    return res.status(200).json(data);
+  } catch (error) {
+    console.log(error);
+    return res.status(200).json(error.message);
+  }
+};
+
+const handleVerifyPosts = async (req, res) => {
+  try {
+    const status = req.query;
+    const data = await handleServiceVerifyPosts(status);
+    return res.status(200).json(data);
+  } catch (error) {
+    console.log(error);
+    return res.status(200).json(error.message);
+  }
+};
+
+const handleConfirmPosts = async (req, res) => {
+  try {
+    const statusData = req.body;
+    const data = await handleServiceConfirmPosts(statusData);
+    return res.status(200).json(data);
+  } catch (error) {
+    console.log(error);
+    return res.status(200).json(error.message);
+  }
+};
 module.exports = {
   handleCreatePost,
   handleGetListPosts,
@@ -101,4 +148,8 @@ module.exports = {
   handleQuitLikePost,
   handleSearchPosts,
   handleGetAllPostsByUser,
+  handleDeletePosts,
+  handleEditPosts,
+  handleVerifyPosts,
+  handleConfirmPosts,
 };
