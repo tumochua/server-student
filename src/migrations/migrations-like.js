@@ -2,7 +2,7 @@
 
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable("posts", {
+    await queryInterface.createTable("likes", {
       id: {
         allowNull: false,
         autoIncrement: true,
@@ -12,37 +12,25 @@ module.exports = {
       userId: {
         type: Sequelize.INTEGER,
       },
-      commentsId: {
+      postId: {
         type: Sequelize.INTEGER,
-      },
-      date: {
-        type: Sequelize.STRING,
-      },
-      title: {
-        type: Sequelize.STRING,
-      },
-      contentHTML: {
-        type: Sequelize.TEXT("long"),
-      },
-      contentMarkdown: {
-        type: Sequelize.TEXT("long"),
-      },
-      description: {
-        type: Sequelize.TEXT("long"),
       },
       status: {
-        type: Sequelize.STRING,
-        defaultValue: "S0",
+        type: Sequelize.BOOLEAN,
+        defaultValue: false,
       },
-      type: {
-        type: Sequelize.STRING,
-      },
-      likeId: {
+      size: {
         type: Sequelize.INTEGER,
+        defaultValue: 0,
       },
-      image: {
+      commentId: {
+        type: Sequelize.INTEGER,
+        defaultValue: 0,
+      },
+      time: {
         type: Sequelize.STRING,
       },
+
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,
@@ -54,6 +42,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable("posts");
+    await queryInterface.dropTable("likes");
   },
 };

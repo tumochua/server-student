@@ -20,14 +20,14 @@ module.exports = (sequelize, DataTypes) => {
         as: "genderMommyData",
       });
       Parents.belongsTo(models.User, {
-        foreignKey: "parentId",
+        foreignKey: "userId",
         as: "parentData",
       });
     }
   }
   Parents.init(
     {
-      parentId: DataTypes.INTEGER,
+      userId: DataTypes.INTEGER,
       fullNameFather: DataTypes.STRING,
       fullNameMommy: DataTypes.STRING,
       email: DataTypes.STRING,
