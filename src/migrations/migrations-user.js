@@ -33,7 +33,7 @@ module.exports = {
         defaultValue: "R0",
       },
       mobile: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.STRING,
         unique: true,
       },
       genderId: {

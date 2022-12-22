@@ -21,7 +21,7 @@ module.exports = (sequelize, DataTypes) => {
         as: "roleData",
       });
       User.hasOne(models.Parents, {
-        foreignKey: "parentId",
+        foreignKey: "userId",
         as: "parentData",
       });
 
@@ -46,7 +46,7 @@ module.exports = (sequelize, DataTypes) => {
       passwordHash: DataTypes.STRING,
       dob: DataTypes.STRING,
       roleId: DataTypes.STRING,
-      mobile: DataTypes.INTEGER,
+      mobile: DataTypes.STRING,
       genderId: DataTypes.STRING,
       classId: DataTypes.STRING,
       profile: DataTypes.TEXT,

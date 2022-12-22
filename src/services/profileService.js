@@ -26,6 +26,13 @@ const profileService = (userId) => {
           {
             model: db.Parents,
             as: "parentData",
+            attributes: [
+              "id",
+              "userId",
+              "mobile",
+              "fullNameFather",
+              "fullNameMommy",
+            ],
             include: [
               {
                 model: db.AllCode,
@@ -49,7 +56,8 @@ const profileService = (userId) => {
         nest: true,
       });
       // console.log("data", data.classId);
-      if (data.image) {
+      // console.log(data);
+      if (data && data.image) {
         const base64 = await Buffer.from(data.image, "base64").toString(
           "binary"
         );
@@ -68,18 +76,73 @@ const profileService = (userId) => {
 const handleUpdateService = (data, userId) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const { user } = await userfindOneUser(userId);
-      if (user) {
-        user.fullName = data.userName;
-        user.email = data.email;
-        user.address = data.address;
-        user.image = data.avatar;
-        user.dob = data.birthday;
-
-        await user.save();
+      const userData = await db.User.findOne({
+        where: {
+          id: userId,
+        },
+        attributes: {
+          exclude: ["passwordHash", "createdAt", "updatedAt"],
+        },
+        include: [
+          {
+            model: db.Parents,
+            as: "parentData",
+            attributes: [
+              "id",
+              "userId",
+              "mobile",
+              "fullNameFather",
+              "fullNameMommy",
+            ],
+          },
+        ],
+        raw: false,
+        nest: true,
+      });
+      // console.log(!userData.dataValues.parentData);
+      // console.log(data);
+      if (userData) {
+        userData.fullName = data.userName;
+        userData.email = data.email;
+        userData.dob = data.birthday;
+        userData.image = data.avatar;
+        userData.mobile = data.mobile;
+        userData.genderId = data.gender;
+        userData.classId = data.className;
+        userData.address = data.address;
+        await userData.save();
+        if (!userData.dataValues.parentData) {
+          await db.Parents.create({
+            userId: userId,
+            fullNameFather: data.userDad,
+            fullNameMommy: data.userMother,
+            mobile: data.mobileContact,
+          });
+        } else {
+          const familyData = await db.Parents.findOne({
+            where: {
+              userId: userId,
+            },
+            attributes: [
+              "id",
+              "userId",
+              "mobile",
+              "fullNameFather",
+              "fullNameMommy",
+            ],
+            raw: false,
+            nest: true,
+          });
+          if (familyData) {
+            (familyData.mobile = data.mobileContact),
+              (familyData.fullNameFather = data.userDad),
+              (familyData.fullNameMommy = data.userMother);
+          }
+          await familyData.save();
+        }
         resolve({
           statusCode: 2,
-          message: "update the user succeeds",
+          message: "update the user and family succeeds",
         });
       } else {
         resolve({
@@ -104,14 +167,14 @@ const handleGetListStudentService = (className) => {
         },
         attributes: ["id", "keyMap", "className"],
         include: [
-          {
-            // separate: true,
-            model: db.User,
-            as: "classData",
-            attributes: ["id", "fullName", "dob", "classId"],
-            // separate: true, // <--- Run separate query
-            // limit: 2,
-          },
+          // {
+          //   // separate: true,
+          //   model: db.User,
+          //   as: "classData",
+          //   attributes: ["id", "fullName", "dob", "classId"],
+          //   // separate: true, // <--- Run separate query
+          //   // limit: 2,
+          // },
         ],
         raw: false,
         nest: true,
@@ -121,22 +184,38 @@ const handleGetListStudentService = (className) => {
         statusCode: 2,
         data: JSON.stringify(resopnseClass),
       });
-      // let plainClass = resopnseClass.classData.map((x) =>
-      //   x.get({ plain: true })
-      // );
-      // plainClass = JSON.stringify(plainClass);
-      // console.log("plainClass", plainClass);
-      // resolve({
-      //   statusCode: 2,
-      //   data: plainClass,
-      // });
-      // console.log("resopnseClass", resopnseClass.rows);
-      // let plainClass = resopnseClass.map((x) => x.get({ plain: true }));
-      // plainClass = JSON.stringify(plainClass);
-      // resolve({
-      //   statusCode: 2,
-      //   data: plainClass,
-      // });
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
+
+const handleServiceCreateFamily = (userId, userData) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      if (!userId) {
+        resolve({
+          statusCode: 4,
+          message: "you are missing a required parameter",
+        });
+      }
+      const familyData = await db.Parents.findOne({
+        where: {
+          userId: userId,
+        },
+      });
+      if (!familyData) {
+        await db.Parents.create({
+          userId: userId,
+          fullNameFather: userData.userDad,
+          fullNameMommy: userData.userMother,
+          mobile: userData.mobileContact,
+        });
+        resolve({
+          statusCode: 2,
+          message: "create family succeeds",
+        });
+      }
     } catch (error) {
       reject(error);
     }
@@ -147,4 +226,5 @@ module.exports = {
   profileService,
   handleUpdateService,
   handleGetListStudentService,
+  handleServiceCreateFamily,
 };

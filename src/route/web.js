@@ -7,6 +7,7 @@ import {
   handleGetProfileUser,
   handleEditUser,
   handleApiGetListStudentOfClass,
+  handleCreateFamily,
 } from "../controllers/profileController";
 import {
   handleCreatePost,
@@ -54,6 +55,7 @@ let initWebRoutes = (app) => {
     useCheckErrorToken,
     handleApiGetListStudentOfClass
   );
+  router.post("/api-create-family", useCheckErrorToken, handleCreateFamily);
 
   router.post("/api-create-post", useCheckErrorToken, handleCreatePost);
   router.get("/api-get-list-posts", useCheckErrorToken, handleGetListPosts);

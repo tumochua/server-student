@@ -38,7 +38,7 @@ module.exports = (sequelize, DataTypes) => {
       status: DataTypes.STRING,
       type: DataTypes.STRING,
       likeId: DataTypes.INTEGER,
-      image: DataTypes.BLOB("long"),
+      image: DataTypes.STRING,
     },
     {
       sequelize,

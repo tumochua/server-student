@@ -32,6 +32,7 @@ const handleRegisterService = (user) => {
           email: email,
           passwordHash: hashPassword,
         });
+
         resolve({ statusCode: 2, message: "create user successful" });
       } else {
         resolve({ statusCode: 4, message: `${data.email} Your have not` });
