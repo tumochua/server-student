@@ -2,7 +2,11 @@ import express from "express";
 import homeController from "../controllers/homeController";
 import auth from "../controllers/authController.js";
 import { useVerifyAccessToken } from "../jwt/useJwt";
-import { useCheckErrorToken, useCheckRoles } from "../middleware/index";
+import {
+  useCheckErrorToken,
+  useCheckRoles,
+  useNotification,
+} from "../middleware/index";
 import {
   handleGetProfileUser,
   handleEditUser,
@@ -21,6 +25,8 @@ import {
   handleVerifyPosts,
   handleConfirmPosts,
 } from "../controllers/postController";
+
+import { handleNotification } from "../controllers/notificationController";
 
 let router = express.Router();
 
@@ -73,6 +79,14 @@ let initWebRoutes = (app) => {
   router.put("/api-confirm-posts", useCheckErrorToken, handleConfirmPosts);
 
   // router.delete("/api-quit-like-post", useCheckErrorToken, handleQuitLikePost);
+
+  //// Notification
+  router.get(
+    "/api-notification",
+    // useCheckErrorToken,
+    useNotification,
+    handleNotification
+  );
 
   return app.use("/", router);
 };

@@ -98,7 +98,21 @@ const useCheckRoles = (req, res, next) => {
   });
 };
 
+const useNotification = (req, res, next) => {
+  const io = req.app.get("socketio");
+  // console.log(io);
+  io.socket.on("connection", function (socket) {
+    console.log("A user connected");
+  });
+  // socket.on("postsNotification", (ags) => {
+  //   console.log(ags);
+  // });
+  // socket.broadcast.emit("notification", ags);
+  next();
+};
+
 module.exports = {
   useCheckErrorToken,
   useCheckRoles,
+  useNotification,
 };
