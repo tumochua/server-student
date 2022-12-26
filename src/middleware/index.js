@@ -97,22 +97,170 @@ const useCheckRoles = (req, res, next) => {
     }
   });
 };
-
-const useNotification = (req, res, next) => {
-  const io = req.app.get("socketio");
-  // console.log(io);
-  io.socket.on("connection", function (socket) {
-    console.log("A user connected");
+const useCreateNotificationPosts = (notification, socket) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      // console.log(notification);
+      const { postsId } = notification;
+      const notificationData = await db.Notification.findOne({
+        where: {
+          postsId: postsId,
+        },
+      });
+      if (!notificationData) {
+        await db.Notification.create({
+          userId: notification.userId,
+          userName: notification.userName,
+          // statusId: notification.statusId,
+          postsId: notification.postsId,
+          roleId: notification.roleId,
+          description: notification.description,
+          title: notification.title,
+          image: notification.image,
+        });
+        socket.broadcast.emit("resCreateMesPosts", notification);
+        resolve("ok");
+      }
+    } catch (error) {
+      reject(error);
+    }
   });
-  // socket.on("postsNotification", (ags) => {
-  //   console.log(ags);
-  // });
-  // socket.broadcast.emit("notification", ags);
-  next();
 };
+
+const useApproveNotificationPosts = (notification, socket) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const { postsId, statusId } = notification;
+      const notificationData = await db.Notification.findOne({
+        where: {
+          postsId: postsId,
+        },
+        attributes: [
+          "id",
+          "userId",
+          "userName",
+          "statusId",
+          "postsId",
+          "roleId",
+          "description",
+        ],
+        include: [
+          {
+            model: db.AllCode,
+            as: "statusNotification",
+            attributes: ["id", "keyMap", "valueVi", "valueEn"],
+          },
+        ],
+        raw: false,
+        nest: true,
+      });
+      if (notificationData) {
+        const statusData = notificationData.statusId;
+        // console.log(statusData);
+        if (statusData === "T0") {
+          await db.Notification.create({
+            userId: notification.userId,
+            userName: notification.userName,
+            statusId: notification.statusId,
+            postsId: notification.postsId,
+            roleId: notification.roleId,
+            description: notification.description,
+          });
+          socket.broadcast.emit("resApprovedPosts", notification);
+          resolve("ok");
+        }
+      }
+    } catch (error) {
+      console.log(error);
+      reject(error);
+    }
+  });
+};
+
+// const useApproveNotificationPosts = (postsId) => {
+//   return new Promise(async (resolve, reject) => {
+//     try {
+//       // const postsId = req.query.postsId;
+//       const notificationData = await db.Notification.findOne({
+//         where: {
+//           postsId: postsId,
+//         },
+//         attributes: [
+//           "id",
+//           "userId",
+//           "userName",
+//           "statusId",
+//           "postsId",
+//           "roleId",
+//           "description",
+//         ],
+//         include: [
+//           {
+//             model: db.AllCode,
+//             as: "statusNotification",
+//             attributes: ["id", "keyMap", "valueVi", "valueEn"],
+//           },
+//         ],
+//         raw: true,
+//         nest: true,
+//       });
+//       resolve({
+//         data: notificationData,
+//       });
+//       // console.log(notificationData);
+//       // if (notificationData) {
+//       //   const statusId = notificationData.statusId;
+//       //   const statusData = await db.Status.findOne({
+//       //     where: {
+//       //       keyMap: statusId,
+//       //     },
+//       //   });
+//       //   console.log(statusData);
+//       //   resolve({
+//       //     notificationData,
+//       //   });
+//       // }
+//     } catch (error) {
+//       console.log(error);
+//       reject(error);
+//     }
+//   });
+// };
 
 module.exports = {
   useCheckErrorToken,
   useCheckRoles,
-  useNotification,
+  useCreateNotificationPosts,
+  useApproveNotificationPosts,
 };
+
+// const { postsId } = notification;
+// // console.log(postsId);
+// if (!postsId) {
+//   await db.Notification.create({
+//     userId: notification.userId,
+//     userName: notification.userName,
+//     statusId: notification.statusId,
+//     postsId: notification.postsId,
+//     role: notification.roleId,
+//     description: notification.description,
+//   });
+// } else {
+//   const notificationData = await db.Notification.findOne({
+//     where: {
+//       postsId: postsId,
+//     },
+//     attributes: [
+//       "id",
+//       "userId",
+//       "userName",
+//       "statusId",
+//       "postsId",
+//       "role",
+//       "description",
+//     ],
+//     raw: true,
+//     nest: true,
+//   });
+//   console.log(notificationData);
+// }

@@ -9,8 +9,12 @@ import connectDB from "./config/connectDB";
 import cors from "cors";
 import createErrors from "http-errors";
 import cookieParser from "cookie-parser";
-const socketio = require("socket.io");
-
+// const socketio = require("socket.io");
+import SocketIo from "./use/SocketIo";
+import {
+  useCreateNotificationPosts,
+  useApproveNotificationPosts,
+} from "./middleware";
 const server = http.createServer(app);
 app.use(
   cors({
@@ -18,22 +22,22 @@ app.use(
     credentials: true,
   })
 );
-const io = socketio(server, {
-  cors: {
-    origin: process.env.REACTJS_URL,
-    methods: ["GET", "POST"],
-    credentials: true,
-  },
+const io = SocketIo(server);
+// app.set("socketio", io);
+// console.log(io);
+io.on("connection", (socket) => {
+  // console.log("User has connection!!");
+  // socket.on("postsNotification", (arg) => {
+  //   useCreateNotificationPost(arg, socket);
+  //   // socket.broadcast.emit("notification", arg);
+  // });
+  socket.on("createNotificationPosts", (arg) => {
+    useCreateNotificationPosts(arg, socket);
+  });
+  socket.on("approveNotificationPosts", (arg) => {
+    useApproveNotificationPosts(arg, socket);
+  });
 });
-app.set("socketio", io);
-
-// io.on("connection", (socket) => {
-//   // console.log("User has connection!!");
-//   socket.on("postsNotification", (arg) => {
-//     // console.log(arg);
-//     socket.broadcast.emit("notification", arg);
-//   });
-// });
 // app.use(bodyParser.json({ limit: "50mb" }));
 // app.use(bodyParser.urlencoded({ limit: "50mb" }));
 app.use(cookieParser());

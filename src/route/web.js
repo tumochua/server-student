@@ -1,11 +1,11 @@
 import express from "express";
 import homeController from "../controllers/homeController";
 import auth from "../controllers/authController.js";
-import { useVerifyAccessToken } from "../jwt/useJwt";
 import {
   useCheckErrorToken,
   useCheckRoles,
-  useNotification,
+  useCreateNotificationPost,
+  useApproveNotificationPosts,
 } from "../middleware/index";
 import {
   handleGetProfileUser,
@@ -26,7 +26,10 @@ import {
   handleConfirmPosts,
 } from "../controllers/postController";
 
-import { handleNotification } from "../controllers/notificationController";
+import {
+  handleGetListNotification,
+  handleCleanNotification,
+} from "../controllers/notificationController";
 
 let router = express.Router();
 
@@ -82,10 +85,14 @@ let initWebRoutes = (app) => {
 
   //// Notification
   router.get(
-    "/api-notification",
-    // useCheckErrorToken,
-    useNotification,
-    handleNotification
+    "/api-list-notification",
+    useCheckErrorToken,
+    handleGetListNotification
+  );
+  router.put(
+    "/api-clean-notification",
+    useCheckErrorToken,
+    handleCleanNotification
   );
 
   return app.use("/", router);

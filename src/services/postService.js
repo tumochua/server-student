@@ -22,7 +22,7 @@ const handleServiceCreatePost = (posts, userId) => {
         },
       });
       if (user) {
-        await db.Post.create({
+        const postsData = await db.Post.create({
           userId: userId,
           title: title,
           contentMarkdown: textMarkDown,
@@ -32,7 +32,13 @@ const handleServiceCreatePost = (posts, userId) => {
           // likeId:
           image: image,
         });
-        resolve({ statusCode: 2, message: "create post successful" });
+        if (postsData) {
+          resolve({
+            statusCode: 2,
+            postsId: postsData.dataValues.id,
+            message: "create post successful",
+          });
+        }
       }
     } catch (error) {
       reject(error);
@@ -128,7 +134,7 @@ const handeServiceDetailPost = ({ postId }) => {
       // console.log("post", post.userData.image);
       const postsCopy = JSON.parse(JSON.stringify(posts));
       // console.log("postsCopy", postsCopy);
-      if (postsCopy.userData.image) {
+      if (postsCopy && postsCopy.userData.image) {
         const base64 = await Buffer.from(
           postsCopy.userData.image,
           "base64"
@@ -405,7 +411,7 @@ const handleServiceVerifyPosts = ({ status }) => {
         where: {
           status: status,
         },
-        attributes: ["id", "title", "status", "date"],
+        attributes: ["id", "title", "status", "date", "image"],
       });
       resolve({
         statusCode: 2,

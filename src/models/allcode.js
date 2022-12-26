@@ -34,6 +34,16 @@ module.exports = (sequelize, DataTypes) => {
         // targetKey: "KeyMap",
         as: "statusData",
       });
+
+      /// Notification
+      AllCode.hasMany(models.Notification, {
+        foreignKey: "statusId",
+        as: "statusNotification",
+      });
+      AllCode.hasMany(models.Notification, {
+        foreignKey: "readId",
+        as: "readData",
+      });
     }
   }
   AllCode.init(

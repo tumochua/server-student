@@ -17,15 +17,21 @@ module.exports = {
       },
       statusId: {
         type: Sequelize.STRING,
+        defaultValue: "T0",
       },
-      role: {
+      postsId: {
+        type: Sequelize.INTEGER,
+      },
+      roleId: {
         type: Sequelize.STRING,
       },
-      read: {
+      readId: {
         type: Sequelize.STRING,
+        defaultValue: "D0",
       },
-      trash: {
+      reason: {
         type: Sequelize.STRING,
+        defaultValue: "D0",
       },
       type: {
         type: Sequelize.STRING,
