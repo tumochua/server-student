@@ -1,6 +1,7 @@
 import {
   handleServiceGetListNotification,
   handleServiceCleanNotification,
+  handleServiceSeeAllNotification,
 } from "../services/notificationServices";
 const handleGetListNotification = async (req, res) => {
   try {
@@ -24,7 +25,19 @@ const handleCleanNotification = async (req, res) => {
   }
 };
 
+const handleSeeAllNotification = async (req, res) => {
+  try {
+    const userId = req.userId;
+    const data = await handleServiceSeeAllNotification(userId);
+    return res.status(200).json(data);
+  } catch (error) {
+    console.log(error);
+    return res.status(200).json(error.message);
+  }
+};
+
 module.exports = {
   handleGetListNotification,
   handleCleanNotification,
+  handleSeeAllNotification,
 };

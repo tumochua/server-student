@@ -31,7 +31,6 @@ module.exports = {
       },
       reason: {
         type: Sequelize.STRING,
-        defaultValue: "D0",
       },
       type: {
         type: Sequelize.STRING,

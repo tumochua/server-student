@@ -29,6 +29,7 @@ import {
 import {
   handleGetListNotification,
   handleCleanNotification,
+  handleSeeAllNotification,
 } from "../controllers/notificationController";
 
 let router = express.Router();
@@ -93,6 +94,11 @@ let initWebRoutes = (app) => {
     "/api-clean-notification",
     useCheckErrorToken,
     handleCleanNotification
+  );
+  router.get(
+    "/api-list-see-all-notification",
+    useCheckErrorToken,
+    handleSeeAllNotification
   );
 
   return app.use("/", router);

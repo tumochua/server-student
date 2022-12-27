@@ -4,12 +4,15 @@ const handleServiceGetListNotification = (userId) => {
   return new Promise(async (resolve, reject) => {
     try {
       const notificationData = await db.Notification.findAll({
-        where: {
-          userId: userId,
-          // statusId: "T0",
-          // statusId: "T1",
-          // statusId:'T0'
-        },
+        limit: 4,
+        offset: 0,
+        order: [["id", "DESC"]],
+        // where: {
+        //   // readId: "D0",
+        //   statusId: "T0",
+        //   // statusId: "T1",
+        //   // statusId:'T0'
+        // },
         attributes: [
           "id",
           "userId",
@@ -74,7 +77,34 @@ const handleServiceCleanNotification = (userId) => {
   });
 };
 
+const handleServiceSeeAllNotification = (userId) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const notificationData = await db.Notification.findAll({
+        where: {
+          userId: userId,
+        },
+        attributes: [
+          "id",
+          "userId",
+          "userName",
+          "statusId",
+          "postsId",
+          "readId",
+          "roleId",
+          "description",
+          "title",
+        ],
+      });
+      resolve({ statusCode: 2, data: notificationData });
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
+
 module.exports = {
   handleServiceGetListNotification,
   handleServiceCleanNotification,
+  handleServiceSeeAllNotification,
 };

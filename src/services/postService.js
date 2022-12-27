@@ -7,6 +7,7 @@ const handleServiceCreatePost = (posts, userId) => {
     try {
       // console.log("userId", userId);
       // console.log("posts", posts);
+      const { roleId } = posts;
       const { title, textMarkDown, type, textHtmlMarkDown, image } = posts;
 
       if (!title || !textMarkDown || !type) {
@@ -22,22 +23,41 @@ const handleServiceCreatePost = (posts, userId) => {
         },
       });
       if (user) {
-        const postsData = await db.Post.create({
-          userId: userId,
-          title: title,
-          contentMarkdown: textMarkDown,
-          contentHTML: textHtmlMarkDown,
-          type: type,
-          date: new Date().getTime(),
-          // likeId:
-          image: image,
-        });
-        if (postsData) {
-          resolve({
-            statusCode: 2,
-            postsId: postsData.dataValues.id,
-            message: "create post successful",
+        if (roleId === "R5" || roleId === "R4" || roleId === "R3") {
+          const postsData = await db.Post.create({
+            userId: userId,
+            title: title,
+            contentMarkdown: textMarkDown,
+            contentHTML: textHtmlMarkDown,
+            type: type,
+            date: new Date().getTime(),
+            status: "S1",
+            image: image,
           });
+          if (postsData) {
+            resolve({
+              statusCode: 2,
+              postsId: postsData.dataValues.id,
+              message: "create post successful",
+            });
+          }
+        } else {
+          const postsData = await db.Post.create({
+            userId: userId,
+            title: title,
+            contentMarkdown: textMarkDown,
+            contentHTML: textHtmlMarkDown,
+            type: type,
+            date: new Date().getTime(),
+            image: image,
+          });
+          if (postsData) {
+            resolve({
+              statusCode: 2,
+              postsId: postsData.dataValues.id,
+              message: "create post successful",
+            });
+          }
         }
       }
     } catch (error) {

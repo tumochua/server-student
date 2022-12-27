@@ -101,12 +101,17 @@ const useCreateNotificationPosts = (notification, socket) => {
   return new Promise(async (resolve, reject) => {
     try {
       // console.log(notification);
-      const { postsId } = notification;
+      const { postsId, userId } = notification;
       const notificationData = await db.Notification.findOne({
         where: {
           postsId: postsId,
         },
+        // where: {
+        //   id: userId,
+        // },
+        // attributes: ["id", "roleId"],
       });
+      // console.log(notificationData);
       if (!notificationData) {
         await db.Notification.create({
           userId: notification.userId,
@@ -121,6 +126,7 @@ const useCreateNotificationPosts = (notification, socket) => {
         socket.broadcast.emit("resCreateMesPosts", notification);
         resolve("ok");
       }
+      // console.log(postsId, userId);
     } catch (error) {
       reject(error);
     }
