@@ -4,46 +4,62 @@ const handleServiceGetListNotification = (userId) => {
   return new Promise(async (resolve, reject) => {
     try {
       const notificationData = await db.Notification.findAll({
-        limit: 4,
-        offset: 0,
-        order: [["id", "DESC"]],
-        // where: {
-        //   // readId: "D0",
-        //   statusId: "T0",
-        //   // statusId: "T1",
-        //   // statusId:'T0'
-        // },
+        // limit: 4,
+        // offset: 0,
         attributes: [
           "id",
-          "userId",
           "userName",
-          "statusId",
+          "userId",
           "postsId",
           "readId",
-          "roleId",
-          "description",
           "title",
+          "description",
+          "typeId",
+          "roleId",
+          "image",
         ],
+        order: [["id", "DESC"]],
         // include: [
         //   {
-        //     model: db.AllCode,
-        //     as: "statusNotification",
-        //     attributes: ["id", "keyMap", "valueVi", "valueEn"],
-        //   },
-        //   {
-        //     model: db.AllCode,
-        //     as: "readData",
-        //     attributes: ["id", "keyMap", "valueVi", "valueEn"],
+        //     model: db.User,
+        //     as: "userNotificationSize",
+        //     attributes: ["id", "sizeNotification", "roleId"],
         //   },
         // ],
         raw: true,
         nest: true,
       });
-
-      resolve({
-        statusCode: 2,
-        data: notificationData,
-      });
+      // console.log(notificationData);
+      if (notificationData) {
+        const newNotificationData = notificationData.filter((notification) => {
+          if (notification.userId !== userId) {
+            return (
+              notification.roleId === "R5" ||
+              notification.roleId === "R4" ||
+              notification.roleId === "R3"
+            );
+          } else {
+            if (notification.userId === userId) {
+              return notification.userId;
+            }
+          }
+        });
+        const userData = await db.User.findOne({
+          where: {
+            id: userId,
+          },
+          attributes: ["id", "sizeNotification", "roleId"],
+        });
+        // console.log(userData);
+        resolve({
+          statusCode: 2,
+          data: newNotificationData,
+          sizeNotification:
+            userData && userData.sizeNotification
+              ? userData.sizeNotification
+              : null,
+        });
+      }
     } catch (error) {
       reject(error);
     }
@@ -53,30 +69,27 @@ const handleServiceGetListNotification = (userId) => {
 const handleServiceCleanNotification = (userId) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const cleanNotification = await db.Notification.findAll({
+      const userData = await db.User.findOne({
         where: {
-          userId: userId,
+          id: userId,
         },
-        attributes: ["id", "userId", "readId"],
+        attributes: ["id", "sizeNotification", "roleId"],
         raw: false,
         nest: true,
       });
-      if (cleanNotification) {
-        cleanNotification.forEach(async (element) => {
-          element.readId = "D1";
-          await element.save();
-        });
-        resolve({
-          statusCode: 2,
-          message: "ok",
-        });
-      }
+      // console.log(userData);
+      userData.sizeNotification = null;
+      await userData.save();
+
+      resolve({
+        statusCode: 2,
+        data: "ok",
+      });
     } catch (error) {
       reject(error);
     }
   });
 };
-
 const handleServiceSeeAllNotification = (userId) => {
   return new Promise(async (resolve, reject) => {
     try {
@@ -103,8 +116,25 @@ const handleServiceSeeAllNotification = (userId) => {
   });
 };
 
+const handleServiceGetListsNotificationRead = (userId) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const readData = await db.Notification_Read.findAll({
+        where: {
+          userId: userId,
+          readId: "D0",
+        },
+      });
+      console.log(readData);
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
+
 module.exports = {
   handleServiceGetListNotification,
   handleServiceCleanNotification,
   handleServiceSeeAllNotification,
+  handleServiceGetListsNotificationRead,
 };

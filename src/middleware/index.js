@@ -97,22 +97,76 @@ const useCheckRoles = (req, res, next) => {
     }
   });
 };
+
 const useCreateNotificationPosts = (notification, socket) => {
   return new Promise(async (resolve, reject) => {
     try {
-      // console.log(notification);
-      const { postsId, userId } = notification;
-      const notificationData = await db.Notification.findOne({
-        where: {
-          postsId: postsId,
-        },
-        // where: {
-        //   id: userId,
-        // },
-        // attributes: ["id", "roleId"],
-      });
-      // console.log(notificationData);
-      if (!notificationData) {
+      const { roleId, userId } = notification;
+      if (roleId === "R5" || roleId === "R4" || roleId === "R3") {
+        const userData = await db.User.findAll({
+          attributes: [
+            "id",
+            "roleId",
+            "userIdNotification",
+            "sizeNotification",
+          ],
+          raw: false,
+          nest: true,
+        });
+        if (userData) {
+          userData.forEach(async (element) => {
+            if (
+              element.roleId === "R0" ||
+              element.roleId === "R1" ||
+              element.roleId === "R2"
+            ) {
+              let size = element.dataValues.sizeNotification;
+              // console.log(size);
+              element.sizeNotification = size += 1;
+              // element.sizeNotification = +1;
+              await element.save();
+              resolve("ok");
+            }
+          });
+          await db.Notification.create({
+            userId: notification.userId,
+            userName: notification.userName,
+            // statusId: notification.statusId,
+            postsId: notification.postsId,
+            roleId: notification.roleId,
+            description: notification.description,
+            title: notification.title,
+            image: notification.image,
+            readId: notification.readId,
+            typeId: "PN",
+          });
+          resolve("ok");
+        }
+      } else {
+        const userData = await db.User.findOne({
+          where: {
+            id: userId,
+          },
+          attributes: [
+            "id",
+            "roleId",
+            "userIdNotification",
+            "sizeNotification",
+          ],
+          raw: false,
+          nest: true,
+        });
+
+        if (userData) {
+          // console.log(userData);
+          let size = userData.dataValues.sizeNotification;
+          // console.log(size);
+          userData.sizeNotification = size += 1;
+          await userData.save();
+
+          resolve("ok");
+        }
+
         await db.Notification.create({
           userId: notification.userId,
           userName: notification.userName,
@@ -122,11 +176,11 @@ const useCreateNotificationPosts = (notification, socket) => {
           description: notification.description,
           title: notification.title,
           image: notification.image,
+          readId: notification.readId,
+          typeId: "PN",
         });
-        socket.broadcast.emit("resCreateMesPosts", notification);
-        resolve("ok");
       }
-      // console.log(postsId, userId);
+      socket.broadcast.emit("resCreateMesPosts", notification);
     } catch (error) {
       reject(error);
     }
@@ -136,46 +190,38 @@ const useCreateNotificationPosts = (notification, socket) => {
 const useApproveNotificationPosts = (notification, socket) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const { postsId, statusId } = notification;
-      const notificationData = await db.Notification.findOne({
+      const { userId } = notification;
+
+      const userData = await db.User.findOne({
         where: {
-          postsId: postsId,
+          id: userId,
         },
-        attributes: [
-          "id",
-          "userId",
-          "userName",
-          "statusId",
-          "postsId",
-          "roleId",
-          "description",
-        ],
-        include: [
-          {
-            model: db.AllCode,
-            as: "statusNotification",
-            attributes: ["id", "keyMap", "valueVi", "valueEn"],
-          },
-        ],
+        attributes: ["id", "roleId", "userIdNotification", "sizeNotification"],
         raw: false,
         nest: true,
       });
-      if (notificationData) {
-        const statusData = notificationData.statusId;
-        // console.log(statusData);
-        if (statusData === "T0") {
-          await db.Notification.create({
-            userId: notification.userId,
-            userName: notification.userName,
-            statusId: notification.statusId,
-            postsId: notification.postsId,
-            roleId: notification.roleId,
-            description: notification.description,
-          });
-          socket.broadcast.emit("resApprovedPosts", notification);
-          resolve("ok");
-        }
+
+      if (userData) {
+        let size = userData.dataValues.sizeNotification;
+        // console.log(size);
+        userData.sizeNotification = size += 1;
+        await userData.save();
+        socket.broadcast.emit("resApprovedPosts", notification);
+        resolve("ok");
       }
+
+      await db.Notification.create({
+        userId: notification.userId,
+        userName: notification.userName,
+        statusId: notification.statusId,
+        postsId: notification.postsId,
+        roleId: notification.roleId,
+        description: notification.description,
+        userIdApprove: notification.userIdApprove,
+        readId: notification.readId,
+        typeId: "PN",
+        title: notification.title,
+      });
     } catch (error) {
       console.log(error);
       reject(error);
@@ -183,90 +229,51 @@ const useApproveNotificationPosts = (notification, socket) => {
   });
 };
 
-// const useApproveNotificationPosts = (postsId) => {
-//   return new Promise(async (resolve, reject) => {
-//     try {
-//       // const postsId = req.query.postsId;
-//       const notificationData = await db.Notification.findOne({
-//         where: {
-//           postsId: postsId,
-//         },
-//         attributes: [
-//           "id",
-//           "userId",
-//           "userName",
-//           "statusId",
-//           "postsId",
-//           "roleId",
-//           "description",
-//         ],
-//         include: [
-//           {
-//             model: db.AllCode,
-//             as: "statusNotification",
-//             attributes: ["id", "keyMap", "valueVi", "valueEn"],
-//           },
-//         ],
-//         raw: true,
-//         nest: true,
-//       });
-//       resolve({
-//         data: notificationData,
-//       });
-//       // console.log(notificationData);
-//       // if (notificationData) {
-//       //   const statusId = notificationData.statusId;
-//       //   const statusData = await db.Status.findOne({
-//       //     where: {
-//       //       keyMap: statusId,
-//       //     },
-//       //   });
-//       //   console.log(statusData);
-//       //   resolve({
-//       //     notificationData,
-//       //   });
-//       // }
-//     } catch (error) {
-//       console.log(error);
-//       reject(error);
-//     }
-//   });
-// };
+const useDeleteNotificationPost = (notification, socket) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      // console.log(notification);
+      const { description, reason, userId } = notification;
+      const newDescription = `${description} ${reason}`;
+      const userData = await db.User.findOne({
+        where: {
+          id: userId,
+        },
+        attributes: ["id", "roleId", "userIdNotification", "sizeNotification"],
+        raw: false,
+        nest: true,
+      });
+
+      if (userData) {
+        let size = userData.dataValues.sizeNotification;
+        // console.log(size);
+        userData.sizeNotification = size += 1;
+        await userData.save();
+        resolve("ok");
+      }
+      await db.Notification.create({
+        userId: notification.userId,
+        userName: notification.userName,
+        statusId: notification.statusId,
+        postsId: notification.postsId,
+        roleId: notification.roleId,
+        description: newDescription,
+        userIdApprove: notification.userIdApprove,
+        readId: notification.readId,
+        typeId: "PN",
+        title: notification.title,
+      });
+      socket.broadcast.emit("resDeleteNotificationPosts");
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
 
 module.exports = {
   useCheckErrorToken,
   useCheckRoles,
   useCreateNotificationPosts,
   useApproveNotificationPosts,
+  useDeleteNotificationPost,
 };
-
-// const { postsId } = notification;
-// // console.log(postsId);
-// if (!postsId) {
-//   await db.Notification.create({
-//     userId: notification.userId,
-//     userName: notification.userName,
-//     statusId: notification.statusId,
-//     postsId: notification.postsId,
-//     role: notification.roleId,
-//     description: notification.description,
-//   });
-// } else {
-//   const notificationData = await db.Notification.findOne({
-//     where: {
-//       postsId: postsId,
-//     },
-//     attributes: [
-//       "id",
-//       "userId",
-//       "userName",
-//       "statusId",
-//       "postsId",
-//       "role",
-//       "description",
-//     ],
-//     raw: true,
-//     nest: true,
-//   });
-//   console.log(notificationData);
-// }

@@ -14,6 +14,7 @@ import SocketIo from "./use/SocketIo";
 import {
   useCreateNotificationPosts,
   useApproveNotificationPosts,
+  useDeleteNotificationPost,
 } from "./middleware";
 const server = http.createServer(app);
 app.use(
@@ -36,6 +37,14 @@ io.on("connection", (socket) => {
   });
   socket.on("approveNotificationPosts", (arg) => {
     useApproveNotificationPosts(arg, socket);
+  });
+  socket.on("deleteNotificationPosts", (arg) => {
+    // console.log(arg);
+    useDeleteNotificationPost(arg, socket);
+    // socket.broadcast.emit("resDeleteNotificationPosts");
+  });
+  socket.on("readPostsNotifications", () => {
+    socket.broadcast.emit("resReadPostsNotifications");
   });
 });
 // app.use(bodyParser.json({ limit: "50mb" }));

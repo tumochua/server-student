@@ -12,6 +12,12 @@ module.exports = {
       userId: {
         type: Sequelize.INTEGER,
       },
+      userIdApprove: {
+        type: Sequelize.INTEGER,
+      },
+      socketId: {
+        type: Sequelize.STRING,
+      },
       userName: {
         type: Sequelize.STRING,
       },
@@ -27,12 +33,11 @@ module.exports = {
       },
       readId: {
         type: Sequelize.STRING,
-        defaultValue: "D0",
       },
       reason: {
         type: Sequelize.STRING,
       },
-      type: {
+      typeId: {
         type: Sequelize.STRING,
       },
       content: {

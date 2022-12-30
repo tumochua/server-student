@@ -30,6 +30,7 @@ import {
   handleGetListNotification,
   handleCleanNotification,
   handleSeeAllNotification,
+  handleApiTestRead,
 } from "../controllers/notificationController";
 
 let router = express.Router();
@@ -100,6 +101,8 @@ let initWebRoutes = (app) => {
     useCheckErrorToken,
     handleSeeAllNotification
   );
+  router.get("/api-test-read", handleApiTestRead);
+  router.get("/api-get-lists-notification-read", useCheckErrorToken);
 
   return app.use("/", router);
 };

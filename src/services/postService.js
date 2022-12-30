@@ -342,7 +342,7 @@ const handleServiceDeletePosts = ({ postsData }) => {
         });
       } else {
         const type = postsData.type;
-        const postsId = postsData.postId;
+        const postsId = postsData.postsId;
         if (type === "delete") {
           const foundPosts = await db.Post.findOne({
             where: {
@@ -356,6 +356,7 @@ const handleServiceDeletePosts = ({ postsData }) => {
               message: `the posts ins't exist`,
             });
           }
+          // console.log(foundPosts);
           await db.Post.destroy({
             where: {
               id: postsId,
@@ -431,7 +432,17 @@ const handleServiceVerifyPosts = ({ status }) => {
         where: {
           status: status,
         },
-        attributes: ["id", "title", "status", "date", "image"],
+        order: [["id", "DESC"]],
+        attributes: ["id", "title", "status", "date", "image", "userId"],
+        include: [
+          {
+            model: db.User,
+            as: "userData",
+            attributes: ["id", "fullName", "roleId"],
+          },
+        ],
+        raw: false,
+        nest: true,
       });
       resolve({
         statusCode: 2,
@@ -458,7 +469,7 @@ const handleServiceConfirmPosts = (statusData) => {
         where: {
           id: postsId,
         },
-        attributes: ["id", "title", "status", "date"],
+        attributes: ["id", "title", "status", "date", "userId"],
         raw: false,
         nest: true,
       });
