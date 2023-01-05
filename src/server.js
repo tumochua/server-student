@@ -1,5 +1,6 @@
 require("dotenv").config();
 import express from "express";
+const http = require("http");
 const app = express();
 import bodyParser from "body-parser";
 import viewEngine from "./config/viewEngine";
@@ -8,13 +9,54 @@ import connectDB from "./config/connectDB";
 import cors from "cors";
 import createErrors from "http-errors";
 import cookieParser from "cookie-parser";
+// const socketio = require("socket.io");
+import { SocketIo, useNotificationLikePosts } from "./use/SocketIo";
+// import { useNotificationLikePosts } from "./use/SocketIo";
+import {
+  useCreateNotificationPosts,
+  useApproveNotificationPosts,
+  useDeleteNotificationPost,
+} from "./middleware";
+const server = http.createServer(app);
 app.use(
   cors({
     origin: process.env.REACTJS_URL,
     credentials: true,
   })
 );
-
+const io = SocketIo(server);
+global.io = io;
+// export const socketio = io;
+// app.set("socketio", io);
+// export const io = socketio;
+// console.log(io);
+io.on("connection", (socket) => {
+  // console.log("User has connection!!");
+  // socket.on("postsNotification", (arg) => {
+  //   useCreateNotificationPost(arg, socket);
+  //   // socket.broadcast.emit("notification", arg);
+  // });
+  socket.on("createNotificationPosts", (arg) => {
+    useCreateNotificationPosts(arg, socket);
+  });
+  socket.on("approveNotificationPosts", (arg) => {
+    useApproveNotificationPosts(arg, socket);
+  });
+  socket.on("deleteNotificationPosts", (arg) => {
+    // console.log(arg);
+    useDeleteNotificationPost(arg, socket);
+    // socket.broadcast.emit("resDeleteNotificationPosts");
+  });
+  socket.on("readPostsNotifications", () => {
+    socket.broadcast.emit("resReadPostsNotifications");
+  });
+  socket.on("notificationLikePost", (arg) => {
+    if (arg) {
+      // console.log(arg);
+      useNotificationLikePosts(arg, socket);
+    }
+  });
+});
 // app.use(bodyParser.json({ limit: "50mb" }));
 // app.use(bodyParser.urlencoded({ limit: "50mb" }));
 app.use(cookieParser());
@@ -39,6 +81,10 @@ connectDB();
 
 let port = process.env.PORT || 6969;
 
-app.listen(port, () => {
+server.listen(port, () => {
   console.log("backend nodejs in runing on the port" + port);
 });
+
+// module.exports = {
+//   socketio,
+// };

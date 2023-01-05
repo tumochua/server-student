@@ -1,8 +1,12 @@
 import express from "express";
 import homeController from "../controllers/homeController";
 import auth from "../controllers/authController.js";
-import { useVerifyAccessToken } from "../jwt/useJwt";
-import { useCheckErrorToken, useCheckRoles } from "../middleware/index";
+import {
+  useCheckErrorToken,
+  useCheckRoles,
+  useCreateNotificationPost,
+  useApproveNotificationPosts,
+} from "../middleware/index";
 import {
   handleGetProfileUser,
   handleEditUser,
@@ -21,6 +25,13 @@ import {
   handleVerifyPosts,
   handleConfirmPosts,
 } from "../controllers/postController";
+
+import {
+  handleGetListNotification,
+  handleCleanNotification,
+  handleSeeAllNotification,
+  handleApiTestRead,
+} from "../controllers/notificationController";
 
 let router = express.Router();
 
@@ -73,6 +84,25 @@ let initWebRoutes = (app) => {
   router.put("/api-confirm-posts", useCheckErrorToken, handleConfirmPosts);
 
   // router.delete("/api-quit-like-post", useCheckErrorToken, handleQuitLikePost);
+
+  //// Notification
+  router.get(
+    "/api-list-notification",
+    useCheckErrorToken,
+    handleGetListNotification
+  );
+  router.put(
+    "/api-clean-notification",
+    useCheckErrorToken,
+    handleCleanNotification
+  );
+  router.get(
+    "/api-list-see-all-notification",
+    useCheckErrorToken,
+    handleSeeAllNotification
+  );
+  router.get("/api-test-read", handleApiTestRead);
+  router.get("/api-get-lists-notification-read", useCheckErrorToken);
 
   return app.use("/", router);
 };

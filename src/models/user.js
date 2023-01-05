@@ -36,6 +36,17 @@ module.exports = (sequelize, DataTypes) => {
         targetKey: "userId",
         as: "userData",
       });
+      // User.belongsTo(models.Notification, {
+      //   foreignKey: "notificationId",
+      //   targetKey: "userId",
+      //   as: "notificationData",
+      // });
+      // User.hasMany(models.Notification, {
+      //   foreignKey: "userId",
+      //   // targetKey: "id",
+      //   targetKey: "notificationId",
+      //   as: "notificationData",
+      // });
     }
   }
   User.init(
@@ -49,6 +60,8 @@ module.exports = (sequelize, DataTypes) => {
       mobile: DataTypes.STRING,
       genderId: DataTypes.STRING,
       classId: DataTypes.STRING,
+      userIdNotification: DataTypes.INTEGER,
+      sizeNotification: DataTypes.INTEGER,
       profile: DataTypes.TEXT,
       date_of_join: DataTypes.DATE,
       status: DataTypes.BOOLEAN,

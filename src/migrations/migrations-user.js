@@ -45,6 +45,12 @@ module.exports = {
         allowNull: false,
         type: Sequelize.STRING,
       },
+      userIdNotification: {
+        type: Sequelize.INTEGER,
+      },
+      sizeNotification: {
+        type: Sequelize.INTEGER,
+      },
       profile: {
         type: Sequelize.TEXT,
       },

@@ -2,7 +2,7 @@
 
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable("posts", {
+    await queryInterface.createTable("notifications", {
       id: {
         allowNull: false,
         autoIncrement: true,
@@ -12,36 +12,48 @@ module.exports = {
       userId: {
         type: Sequelize.INTEGER,
       },
+      userIdApprove: {
+        type: Sequelize.INTEGER,
+      },
+      userIdLikePost: {
+        type: Sequelize.INTEGER,
+      },
       commentsId: {
         type: Sequelize.INTEGER,
       },
-      date: {
+      socketId: {
+        type: Sequelize.STRING,
+      },
+      userName: {
+        type: Sequelize.STRING,
+      },
+      statusId: {
+        type: Sequelize.STRING,
+        defaultValue: "T0",
+      },
+      postsId: {
+        type: Sequelize.INTEGER,
+      },
+      roleId: {
+        type: Sequelize.STRING,
+      },
+      readId: {
+        type: Sequelize.STRING,
+      },
+      reason: {
+        type: Sequelize.STRING,
+      },
+      typeId: {
+        type: Sequelize.STRING,
+      },
+      content: {
         type: Sequelize.STRING,
       },
       title: {
         type: Sequelize.STRING,
       },
-      contentHTML: {
-        type: Sequelize.TEXT("long"),
-      },
-      contentMarkdown: {
-        type: Sequelize.TEXT("long"),
-      },
       description: {
-        type: Sequelize.TEXT("long"),
-      },
-      status: {
         type: Sequelize.STRING,
-        defaultValue: "S0",
-      },
-      type: {
-        type: Sequelize.STRING,
-      },
-      likeId: {
-        type: Sequelize.INTEGER,
-      },
-      likeSize: {
-        type: Sequelize.INTEGER,
       },
       image: {
         type: Sequelize.STRING,
@@ -57,6 +69,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable("posts");
+    await queryInterface.dropTable("notifications");
   },
 };

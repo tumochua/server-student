@@ -38,6 +38,7 @@ module.exports = (sequelize, DataTypes) => {
       status: DataTypes.STRING,
       type: DataTypes.STRING,
       likeId: DataTypes.INTEGER,
+      likeSize: DataTypes.INTEGER,
       image: DataTypes.STRING,
     },
     {
