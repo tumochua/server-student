@@ -40,6 +40,9 @@ module.exports = {
       likeId: {
         type: Sequelize.INTEGER,
       },
+      likeSize: {
+        type: Sequelize.INTEGER,
+      },
       image: {
         type: Sequelize.STRING,
       },

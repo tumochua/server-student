@@ -36,10 +36,13 @@ module.exports = (sequelize, DataTypes) => {
       // });
     }
   }
+
   Notification.init(
     {
       userId: DataTypes.INTEGER,
       userIdApprove: DataTypes.INTEGER,
+      userIdLikePost: DataTypes.INTEGER,
+      commentsId: DataTypes.INTEGER,
       socketId: DataTypes.STRING,
       userName: DataTypes.STRING,
       statusId: DataTypes.STRING,

@@ -40,10 +40,6 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: "statusId",
         as: "statusNotification",
       });
-      AllCode.hasMany(models.Notification_Read, {
-        foreignKey: "readId",
-        as: "readData",
-      });
     }
   }
   AllCode.init(

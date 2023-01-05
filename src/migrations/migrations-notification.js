@@ -15,6 +15,12 @@ module.exports = {
       userIdApprove: {
         type: Sequelize.INTEGER,
       },
+      userIdLikePost: {
+        type: Sequelize.INTEGER,
+      },
+      commentsId: {
+        type: Sequelize.INTEGER,
+      },
       socketId: {
         type: Sequelize.STRING,
       },

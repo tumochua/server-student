@@ -10,7 +10,8 @@ import cors from "cors";
 import createErrors from "http-errors";
 import cookieParser from "cookie-parser";
 // const socketio = require("socket.io");
-import SocketIo from "./use/SocketIo";
+import { SocketIo, useNotificationLikePosts } from "./use/SocketIo";
+// import { useNotificationLikePosts } from "./use/SocketIo";
 import {
   useCreateNotificationPosts,
   useApproveNotificationPosts,
@@ -24,7 +25,10 @@ app.use(
   })
 );
 const io = SocketIo(server);
+global.io = io;
+// export const socketio = io;
 // app.set("socketio", io);
+// export const io = socketio;
 // console.log(io);
 io.on("connection", (socket) => {
   // console.log("User has connection!!");
@@ -45,6 +49,12 @@ io.on("connection", (socket) => {
   });
   socket.on("readPostsNotifications", () => {
     socket.broadcast.emit("resReadPostsNotifications");
+  });
+  socket.on("notificationLikePost", (arg) => {
+    if (arg) {
+      // console.log(arg);
+      useNotificationLikePosts(arg, socket);
+    }
   });
 });
 // app.use(bodyParser.json({ limit: "50mb" }));
@@ -74,3 +84,7 @@ let port = process.env.PORT || 6969;
 server.listen(port, () => {
   console.log("backend nodejs in runing on the port" + port);
 });
+
+// module.exports = {
+//   socketio,
+// };

@@ -1,6 +1,7 @@
 import { Op } from "sequelize";
 import db from "../models/index";
 import { PAGE_SIZE } from "../utils/constants";
+import { useCheckPosts } from "../use/posts";
 
 const handleServiceCreatePost = (posts, userId) => {
   return new Promise(async (resolve, reject) => {
@@ -80,15 +81,15 @@ const handleServiceGetListPosts = (currentPage) => {
         order: [["id", "DESC"]],
         /// giảm tăng
         // order: [["id", "ASC"]],
-        attributes: [
-          "id",
-          "title",
-          "date",
-          "userId",
-          "type",
-          "image",
-          "status",
-        ],
+        // attributes: [
+        //   "id",
+        //   "title",
+        //   "date",
+        //   "userId",
+        //   "type",
+        //   "image",
+        //   "status",
+        // ],
         include: [
           {
             model: db.User,
@@ -133,9 +134,19 @@ const handeServiceDetailPost = ({ postId }) => {
         where: {
           id: postId,
         },
-        attributes: {
-          exclude: ["createdAt", "updatedAt"],
-        },
+        attributes: [
+          "id",
+          "contentHTML",
+          "contentMarkdown",
+          "date",
+          "image",
+          "title",
+          "likeSize",
+          "likeId",
+        ],
+        // attributes: {
+        //   exclude: ["createdAt", "updatedAt"],
+        // },
         include: [
           {
             model: db.User,
@@ -145,7 +156,7 @@ const handeServiceDetailPost = ({ postId }) => {
           {
             model: db.Like,
             as: "likeData",
-            attributes: ["id", "size", "userId"],
+            attributes: ["id", "postId", "userId"],
           },
         ],
         raw: false,
@@ -171,79 +182,63 @@ const handeServiceDetailPost = ({ postId }) => {
   });
 };
 
-const handleServiceLikePost = (data, dataUserId) => {
+const handleServiceLikePost = (dataPost, userId) => {
   return new Promise(async (resolve, reject) => {
-    try {
-      const postData = await db.Post.findOne({
-        where: {
-          id: data.postId,
-        },
-        attributes: ["id", "likeId", "title"],
-        include: [
-          // {
-          //   model: db.User,
-          //   as: "userData",
-          //   attributes: ["id", "fullName"],
-          // },
-          {
-            model: db.Like,
-            as: "likeData",
-            attributes: ["id", "postId", "size", "userId"],
-          },
-        ],
-        raw: false,
-        nest: true,
-      });
-      const postsCopy = JSON.parse(JSON.stringify(postData));
+    // console.log(dataPost, dataUserId);
+    const { postId } = dataPost;
+    const postData = await db.Post.findOne({
+      where: {
+        id: postId,
+      },
+      attributes: ["id", "userId", "likeId", "likeSize"],
+      raw: false,
+      nest: true,
+    });
+    if (postData) {
+      // console.log(postData);
+      let sizeLike = postData.dataValues.likeSize;
+      const postsId = postData.dataValues.id;
+      // console.log(sizeLike);
 
-      if (postsCopy) {
-        postData.likeId = postsCopy.id;
+      const likeData = await db.Like.findOne({
+        where: {
+          userId: userId,
+          postId: postsId,
+        },
+      });
+      if (likeData) {
+        await db.Like.destroy({
+          where: {
+            userId: userId,
+            postId: postsId,
+          },
+        });
+        postData.likeSize = sizeLike -= 1;
         await postData.save();
-        // resolve();
-      }
-      if (postsCopy && postsCopy.likeData.length === 0) {
-        await db.Like.create({
-          userId: dataUserId,
-          postId: postsCopy.id,
-          status: true,
-          size: +1,
-          time: new Date().getTime(),
+        resolve({
+          statusCode: 3,
+          message: "user already like posts",
         });
-        resolve("like");
       } else {
-        // console.log("postsCopy", postsCopy);
-        // console.log("dataUserId", dataUserId);
-        let isLike = false;
-        postsCopy.likeData.forEach(async (element) => {
-          if (
-            dataUserId === element.userId &&
-            postsCopy.likeId === element.postId
-          ) {
-            isLike = true;
-            // size += element.size;
-          }
+        postData.likeSize = sizeLike += 1;
+        await postData.save();
+
+        await db.Like.create({
+          userId: userId,
+          postId: postsId,
         });
-        if (isLike) {
-          await db.Like.destroy({
-            where: {
-              postId: postsCopy.likeId,
-              userId: dataUserId,
-            },
-          });
-          resolve("delete");
-        } else {
-          await db.Like.create({
-            userId: dataUserId,
-            postId: postsCopy.id,
-            status: true,
-            size: +1,
-            time: new Date().getTime(),
-          });
-          resolve("like");
-        }
+
+        // await db.Notification.create({
+
+        // })
+
+        // global.io.emit("resNotificationLike", dataPost);
       }
-    } catch (error) {
-      reject(error);
+
+      resolve({
+        statusCode: 2,
+        message: "ok",
+      });
     }
   });
 };

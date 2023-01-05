@@ -54,6 +54,7 @@ const handleLikePost = async (req, res) => {
   try {
     const reqData = req.body;
     const userId = req.userId;
+
     const data = await handleServiceLikePost(reqData, userId);
     return res.status(200).json(data);
   } catch (error) {
