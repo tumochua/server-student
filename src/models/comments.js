@@ -9,13 +9,25 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
+      Comments.belongsTo(models.User, {
+        foreignKey: "authorId",
+        // targetKey: "userId",
+        as: "authorData",
+      });
     }
   }
   Comments.init(
     {
-      userId: DataTypes.INTEGER,
+      authorId: DataTypes.INTEGER,
       postId: DataTypes.INTEGER,
-      content: DataTypes.TEXT,
+      time: DataTypes.STRING,
+      text: DataTypes.TEXT,
+      parent_slug: DataTypes.STRING,
+      score: DataTypes.INTEGER,
+      slug: DataTypes.STRING,
+      comment_likes: DataTypes.JSON,
+      comment_like_num: DataTypes.INTEGER,
+      full_slug: DataTypes.STRING,
     },
     {
       sequelize,

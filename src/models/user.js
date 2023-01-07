@@ -47,6 +47,13 @@ module.exports = (sequelize, DataTypes) => {
       //   targetKey: "notificationId",
       //   as: "notificationData",
       // });
+
+      /// comment
+      User.hasOne(models.Comments, {
+        foreignKey: "authorId",
+        // targetKey: "userId",
+        as: "authorData",
+      });
     }
   }
   User.init(

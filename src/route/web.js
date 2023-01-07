@@ -33,6 +33,15 @@ import {
   handleApiTestRead,
 } from "../controllers/notificationController";
 
+import {
+  handleCreateComment,
+  handleGetListsComment,
+  handleEditCommnet,
+  handleDeleteCommnet,
+  handleLikeComment,
+} from "../controllers/commentController";
+
+///// router
 let router = express.Router();
 
 let initWebRoutes = (app) => {
@@ -103,6 +112,17 @@ let initWebRoutes = (app) => {
   );
   router.get("/api-test-read", handleApiTestRead);
   router.get("/api-get-lists-notification-read", useCheckErrorToken);
+
+  /// commnets
+  router.post("/api-create-comment", useCheckErrorToken, handleCreateComment);
+  router.get(
+    "/api-get-list-comments",
+    useCheckErrorToken,
+    handleGetListsComment
+  );
+  router.put("/api-eidt-comment", useCheckErrorToken, handleEditCommnet);
+  router.delete("/api-delete-comment", useCheckErrorToken, handleDeleteCommnet);
+  router.put("/api-likes-comment", useCheckErrorToken, handleLikeComment);
 
   return app.use("/", router);
 };

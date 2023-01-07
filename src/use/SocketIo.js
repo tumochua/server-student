@@ -85,7 +85,139 @@ const useNotificationLikePosts = (arg, socket) => {
   });
 };
 
+const useCreateNotificationComment = (arg, socket) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const { postId, userId, description, typeId, readId, userName } = arg;
+      const postData = await db.Post.findOne({
+        where: {
+          id: postId,
+        },
+        attributes: ["id", "userId"],
+      });
+      // console.log(postData);
+      // console.log(postId, userId, description, typeId, readId, userName);
+      if (postData) {
+        if (postData.userId !== userId) {
+          await db.Notification.create({
+            userId: postData.userId,
+            postsId: postId,
+            userName: userName,
+            description: description,
+            typeId: typeId,
+            readId: readId,
+          });
+          const userData = await db.User.findOne({
+            where: {
+              id: postData.userId,
+            },
+            attributes: [
+              "id",
+              "roleId",
+              "userIdNotification",
+              "sizeNotification",
+            ],
+            raw: false,
+            nest: true,
+          });
+          if (userData) {
+            let size = userData.dataValues.sizeNotification;
+            // console.log(size);
+            userData.sizeNotification = size += 1;
+            await userData.save();
+            socket.broadcast.emit("resNotificationComment", arg);
+            resolve("ok");
+          }
+          // socket.broadcast.emit("resNotificationLike", arg);
+          resolve({
+            statusCode: 2,
+            message: "ok",
+          });
+        }
+      }
+    } catch (error) {
+      console.log(error);
+      reject(error);
+    }
+  });
+};
+const useCreateNotificationLkeComment = (arg, socket) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const {
+        postId,
+        userId,
+        description,
+        typeId,
+        readId,
+        userName,
+        commentId,
+      } = arg;
+
+      // console.log(
+      //   postId,
+      //   userId,
+      //   description,
+      //   typeId,
+      //   readId,
+      //   userName,
+      //   commentId
+      // );
+
+      const commentData = await db.Comments.findOne({
+        where: {
+          id: commentId,
+        },
+        attributes: ["id", "authorId"],
+      });
+      // console.log(commentData);
+      if (commentData) {
+        if (commentData.authorId !== userId) {
+          const userData = await db.User.findOne({
+            where: {
+              id: commentData.authorId,
+            },
+            attributes: [
+              "id",
+              "roleId",
+              "userIdNotification",
+              "sizeNotification",
+            ],
+            raw: false,
+            nest: true,
+          });
+          if (userData) {
+            let size = userData.dataValues.sizeNotification;
+            // console.log(size);
+            userData.sizeNotification = size += 1;
+            await userData.save();
+            resolve("ok");
+            await db.Notification.create({
+              userId: commentData.authorId,
+              postsId: postId,
+              userName: userName,
+              description: description,
+              typeId: typeId,
+              readId: readId,
+            });
+            socket.broadcast.emit("resNotificationLikeComment", arg);
+            resolve({
+              statusCode: 2,
+              message: "ok",
+            });
+          }
+        }
+      }
+    } catch (error) {
+      console.log(error);
+      reject(error);
+    }
+  });
+};
+
 module.exports = {
   SocketIo,
   useNotificationLikePosts,
+  useCreateNotificationComment,
+  useCreateNotificationLkeComment,
 };

@@ -10,7 +10,12 @@ import cors from "cors";
 import createErrors from "http-errors";
 import cookieParser from "cookie-parser";
 // const socketio = require("socket.io");
-import { SocketIo, useNotificationLikePosts } from "./use/SocketIo";
+import {
+  SocketIo,
+  useNotificationLikePosts,
+  useCreateNotificationComment,
+  useCreateNotificationLkeComment,
+} from "./use/SocketIo";
 // import { useNotificationLikePosts } from "./use/SocketIo";
 import {
   useCreateNotificationPosts,
@@ -55,6 +60,12 @@ io.on("connection", (socket) => {
       // console.log(arg);
       useNotificationLikePosts(arg, socket);
     }
+  });
+  socket.on("createNotificationComment", (arg) => {
+    useCreateNotificationComment(arg, socket);
+  });
+  socket.on("createLikeComment", (arg) => {
+    useCreateNotificationLkeComment(arg, socket);
   });
 });
 // app.use(bodyParser.json({ limit: "50mb" }));
