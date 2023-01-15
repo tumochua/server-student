@@ -6,12 +6,17 @@ import {
   useCheckRoles,
   useCreateNotificationPost,
   useApproveNotificationPosts,
+  useSortMiddleware,
 } from "../middleware/index";
 import {
   handleGetProfileUser,
   handleEditUser,
   handleApiGetListStudentOfClass,
   handleCreateFamily,
+  handleGetAllStudentMannage,
+  handleGetUserById,
+  handleMannageEditUser,
+  handleMannageDeleteUser,
 } from "../controllers/profileController";
 import {
   handleCreatePost,
@@ -24,6 +29,7 @@ import {
   handleEditPosts,
   handleVerifyPosts,
   handleConfirmPosts,
+  handleGetAllPosts,
 } from "../controllers/postController";
 
 import {
@@ -77,6 +83,24 @@ let initWebRoutes = (app) => {
   );
   router.post("/api-create-family", useCheckErrorToken, handleCreateFamily);
 
+  router.get(
+    "/api-get-all-student-manage",
+    useCheckErrorToken,
+    handleGetAllStudentMannage
+  );
+  router.get("/api-get-user-by-id", useCheckErrorToken, handleGetUserById);
+  router.put(
+    "/api-manage-eidt-user",
+    useCheckErrorToken,
+    handleMannageEditUser
+  );
+  router.delete(
+    "/api-manage-delete-user",
+    useCheckErrorToken,
+    handleMannageDeleteUser
+  );
+
+  /// posts
   router.post("/api-create-post", useCheckErrorToken, handleCreatePost);
   router.get("/api-get-list-posts", useCheckErrorToken, handleGetListPosts);
   router.get("/api-get-detail-post-by-id", useCheckErrorToken, handeDetailPost);
@@ -91,6 +115,14 @@ let initWebRoutes = (app) => {
   router.put("/api-edit-posts-by-user", useCheckErrorToken, handleEditPosts);
   router.get("/api-get-verify-posts", useCheckErrorToken, handleVerifyPosts);
   router.put("/api-confirm-posts", useCheckErrorToken, handleConfirmPosts);
+
+  /// manage
+  router.get(
+    "/api-get-all-posts",
+    useCheckErrorToken,
+    // useSortMiddleware,
+    handleGetAllPosts
+  );
 
   // router.delete("/api-quit-like-post", useCheckErrorToken, handleQuitLikePost);
 
