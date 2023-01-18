@@ -24,6 +24,13 @@ module.exports = (sequelize, DataTypes) => {
         targetKey: "KeyMap",
         as: "statusData",
       });
+
+      /// comment
+      Post.hasMany(models.Comments, {
+        foreignKey: "postId",
+        // targetKey: "commentsId",
+        as: "commentsData",
+      });
     }
   }
   Post.init(

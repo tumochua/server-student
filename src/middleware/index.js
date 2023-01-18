@@ -270,10 +270,30 @@ const useDeleteNotificationPost = (notification, socket) => {
   });
 };
 
+const useSortMiddleware = (req, res, next) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      console.log(req.query.data);
+      const { value, collum, name } = req.query.data;
+      console.log(value, collum, name);
+      if ((!value, !collum, !name)) {
+        resolve({
+          statusCode: 3,
+          message: "you are missing a required parameter",
+        });
+      }
+      next();
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
+
 module.exports = {
   useCheckErrorToken,
   useCheckRoles,
   useCreateNotificationPosts,
   useApproveNotificationPosts,
   useDeleteNotificationPost,
+  useSortMiddleware,
 };

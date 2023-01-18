@@ -30,7 +30,7 @@ app.use(
   })
 );
 const io = SocketIo(server);
-global.io = io;
+// global.io = io;
 // export const socketio = io;
 // app.set("socketio", io);
 // export const io = socketio;

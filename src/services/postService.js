@@ -1,7 +1,7 @@
 import { Op } from "sequelize";
 import db from "../models/index";
 import { PAGE_SIZE } from "../utils/constants";
-import { useCheckPosts } from "../use/posts";
+// import { useCheckPosts } from "../use/posts";
 
 const handleServiceCreatePost = (posts, userId) => {
   return new Promise(async (resolve, reject) => {
@@ -34,13 +34,31 @@ const handleServiceCreatePost = (posts, userId) => {
             date: new Date().getTime(),
             status: "S1",
             image: image,
+            // commentsId: postsData.dataValues.id,
           });
+          // console.log(postsData);
           if (postsData) {
-            resolve({
-              statusCode: 2,
-              postsId: postsData.dataValues.id,
-              message: "create post successful",
+            const updatePost = await db.Post.findOne({
+              where: {
+                id: postsData.dataValues.id,
+              },
+              attributes: ["id", "commentsId"],
+              raw: false,
+              nest: true,
             });
+            if (updatePost) {
+              // console.log(updatePost);
+              updatePost.commentsId = postsData.dataValues.id;
+              await updatePost.save();
+            }
+            // resolve({
+            //   statusCode: 2,
+            //   postsId: postsData.dataValues.id,
+            //   message: "create post successful",
+            // });
+            // await db.Post.create({
+            //   commentsId: postsData.dataValues.id,
+            // });
           }
         } else {
           const postsData = await db.Post.create({
@@ -51,8 +69,22 @@ const handleServiceCreatePost = (posts, userId) => {
             type: type,
             date: new Date().getTime(),
             image: image,
+            // commentsId: postsData.dataValues.id,
           });
           if (postsData) {
+            const updatePost = await db.Post.findOne({
+              where: {
+                id: postsData.dataValues.id,
+              },
+              attributes: ["id", "commentsId"],
+              raw: false,
+              nest: true,
+            });
+            if (updatePost) {
+              // console.log(updatePost);
+              updatePost.commentsId = postsData.dataValues.id;
+              await updatePost.save();
+            }
             resolve({
               statusCode: 2,
               postsId: postsData.dataValues.id,
@@ -70,57 +102,63 @@ const handleServiceCreatePost = (posts, userId) => {
 const handleServiceGetListPosts = (currentPage) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const skip = (currentPage - 1) * PAGE_SIZE;
-      const posts = await db.Post.findAll({
-        limit: PAGE_SIZE,
-        offset: skip,
-        where: {
-          status: "S1",
-        },
-        /// DESC giảm dần
-        order: [["id", "DESC"]],
-        /// giảm tăng
-        // order: [["id", "ASC"]],
-        // attributes: [
-        //   "id",
-        //   "title",
-        //   "date",
-        //   "userId",
-        //   "type",
-        //   "image",
-        //   "status",
-        // ],
-        include: [
-          {
-            model: db.User,
-            as: "userData",
-            attributes: ["id", "fullName", "image", "roleId"],
+      if (currentPage > 0) {
+        const skip = (currentPage - 1) * PAGE_SIZE;
+        const posts = await db.Post.findAll({
+          limit: PAGE_SIZE,
+          offset: skip,
+          where: {
+            status: "S1",
           },
-          {
-            model: db.AllCode,
-            as: "statusData",
-            attributes: ["id", "KeyMap", "valueEn", "valueVi"],
-          },
-        ],
-        raw: true,
-        nest: true,
-      });
-      // console.log("posts", JSON.stringify(posts));
-      posts.forEach(async (element) => {
-        if (element.userData.image) {
-          const base64 = await Buffer.from(
-            element.userData.image,
-            "base64"
-          ).toString("binary");
-          element.userData.image = base64;
+          /// DESC giảm dần
+          order: [["id", "DESC"]],
+          /// giảm tăng
+          // order: [["id", "ASC"]],
+          attributes: [
+            "id",
+            "title",
+            "date",
+            "userId",
+            "type",
+            "image",
+            "status",
+          ],
+          include: [
+            {
+              model: db.User,
+              as: "userData",
+              attributes: ["id", "fullName", "image", "roleId"],
+            },
+            {
+              model: db.AllCode,
+              as: "statusData",
+              attributes: ["id", "KeyMap", "valueEn", "valueVi"],
+            },
+          ],
+          raw: true,
+          nest: true,
+        });
+        // console.log(posts);
+        if (posts) {
+          // console.log(posts);
+          // console.log("posts", JSON.stringify(posts));
+          posts.forEach(async (element) => {
+            if (element.userData.image) {
+              const base64 = await Buffer.from(
+                element.userData.image,
+                "base64"
+              ).toString("binary");
+              element.userData.image = base64;
+            }
+          });
+          resolve({
+            statusCode: 2,
+            posts,
+            currentPage,
+            pageSize: PAGE_SIZE,
+          });
         }
-      });
-      resolve({
-        statusCode: 2,
-        posts,
-        currentPage,
-        pageSize: PAGE_SIZE,
-      });
+      }
     } catch (error) {
       reject(error);
     }
@@ -267,12 +305,13 @@ const handleServiceSearchPosts = (valueSearch) => {
           raw: true,
           nest: true,
         });
-
         // console.log(searchPosts);
-        resolve({
-          statusCode: 2,
-          data: searchPosts,
-        });
+        if (searchPosts) {
+          resolve({
+            statusCode: 2,
+            data: searchPosts,
+          });
+        }
       }
       if (type) {
         const searchPosts = await db.Post.findAll({
@@ -306,25 +345,68 @@ const handleServiceSearchPosts = (valueSearch) => {
 const handleServiceGetAllPostsByUser = (userId) => {
   return new Promise(async (resolve, reject) => {
     try {
-      // const skip = (currentPage - 1) * PAGE_SIZE;
-      const postsUser = await db.Post.findAll({
+      const postData = await db.Post.findAll({
         limit: 5,
         offset: 0,
         where: {
           userId: userId,
         },
+        /// DESC giảm dần
         order: [["id", "DESC"]],
+        /// giảm tăng
+        // order: [["id", "ASC"]],
+        attributes: [
+          "id",
+          "userId",
+          "commentsId",
+          "date",
+          "title",
+          "contentHTML",
+          "contentMarkdown",
+          "description",
+          "status",
+          "type",
+          "likeId",
+          "likeSize",
+          "image",
+        ],
       });
-      resolve({
-        statusCode: 2,
-        data: postsUser,
-        // data: JSON.stringify(postsUser),
-      });
+      if (postData) {
+        resolve({ statusCode: 2, data: postData });
+      }
     } catch (error) {
       reject(error);
     }
   });
 };
+
+// const handleServiceGetAllPostsByUser = (userId) => {
+//   return new Promise(async (resolve, reject) => {
+//     try {
+//       // console.log(userId);
+//       // const skip = (currentPage - 1) * PAGE_SIZE;
+//       const postsUser = await db.Post.findAll({
+//         limit: 5,
+//         offset: 0,
+//         where: {
+//           userId: userId,
+//         },
+//         order: [["id", "DESC"]],
+//       });
+
+//       console.log("postsUser", postsUser);
+//       // if (postsUser) {
+//       //   resolve({
+//       //     statusCode: 2,
+//       //     data: postsUser,
+//       //     // data: JSON.stringify(postsUser),
+//       //   });
+//       // }
+//     } catch (error) {
+//       reject(error);
+//     }
+//   });
+// };
 
 const handleServiceDeletePosts = ({ postsData }) => {
   // console.log(postsData);
@@ -482,6 +564,57 @@ const handleServiceConfirmPosts = (statusData) => {
   });
 };
 
+const handleServiceGetAllPosts = (data) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      // console.log("check", data);
+      const { value, collum, name } = data;
+      if (value && collum && name) {
+        const postData = await db.Post.findAll({
+          attributes: [
+            "id",
+            "userId",
+            "date",
+            "title",
+            "contentHTML",
+            "contentMarkdown",
+            "description",
+            "status",
+            "likeId",
+            "type",
+            "image",
+            "likeSize",
+          ],
+          // order: [["id", "DESC"]],
+          order: [[`${collum}`, `${value}`]],
+          include: [
+            {
+              model: db.User,
+              as: "userData",
+              attributes: ["id", "fullName", "roleId"],
+            },
+            {
+              model: db.Comments,
+              as: "commentsData",
+              attributes: ["id", "authorId", "postId"],
+            },
+          ],
+          raw: false,
+          nest: true,
+        });
+        if (postData) {
+          resolve({
+            statusCode: 2,
+            data: postData,
+          });
+        }
+      }
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
+
 module.exports = {
   handleServiceCreatePost,
   handleServiceGetListPosts,
@@ -493,5 +626,6 @@ module.exports = {
   handleServiceEditPosts,
   handleServiceVerifyPosts,
   handleServiceConfirmPosts,
+  handleServiceGetAllPosts,
   // handleServiceQuitLikePosts,
 };

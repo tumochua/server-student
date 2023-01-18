@@ -10,12 +10,14 @@ import {
   handleServiceEditPosts,
   handleServiceVerifyPosts,
   handleServiceConfirmPosts,
+  handleServiceGetAllPosts,
 } from "../services/postService";
 
 const handleCreatePost = async (req, res) => {
   try {
     const userId = req.userId;
     const post = req.body;
+    // console.log(post);
     // const userIdQuery = +req.query.userId;
     const data = await handleServiceCreatePost(post, userId);
     return res.status(200).json(data);
@@ -28,6 +30,7 @@ const handleCreatePost = async (req, res) => {
 const handleGetListPosts = async (req, res) => {
   try {
     const currentPage = +req.query.page;
+    // console.log("currentPage", currentPage);
     const data = await handleServiceGetListPosts(currentPage);
     // console.log(data);
     return res.status(200).json(data);
@@ -42,6 +45,7 @@ const handeDetailPost = async (req, res) => {
     // console.log(req.query);
     // const userId = req.userId;
     const postId = req.query;
+    // console.log(postId);
     const data = await handeServiceDetailPost(postId);
     return res.status(200).json(data);
   } catch (error) {
@@ -141,6 +145,15 @@ const handleConfirmPosts = async (req, res) => {
     return res.status(200).json(error.message);
   }
 };
+const handleGetAllPosts = async (req, res) => {
+  try {
+    const data = await handleServiceGetAllPosts(req.query.data);
+    return res.status(200).json(data);
+  } catch (error) {
+    console.log(error);
+    return res.status(200).json(error.message);
+  }
+};
 module.exports = {
   handleCreatePost,
   handleGetListPosts,
@@ -153,4 +166,5 @@ module.exports = {
   handleEditPosts,
   handleVerifyPosts,
   handleConfirmPosts,
+  handleGetAllPosts,
 };
