@@ -1,6 +1,6 @@
 import { Op } from "sequelize";
 import db from "../models";
-import { userfindOneUser, userCheckEmail } from "../use/hooks";
+import { ConvertBuffer } from "../use/Avatarts";
 
 const profileService = (userId) => {
   return new Promise(async (resolve, reject) => {
@@ -224,81 +224,97 @@ const handleServiceCreateFamily = (userId, userData) => {
   });
 };
 
-const handleServiceGetAllStudentMannage = () => {
+const handleServiceGetAllStudentMannage = (currentUsers) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const studentsData = await db.User.findAll({
-        where: {
-          roleId: {
-            [Op.or]: ["R0", "R1"],
+      if (currentUsers) {
+        // console.log(currentUsers);
+        const studentsData = await db.User.findAll({
+          limit: currentUsers,
+          offset: 0,
+          where: {
+            roleId: {
+              [Op.or]: ["R0", "R1"],
+            },
           },
-        },
-        attributes: [
-          "id",
-          "fullName",
-          "email",
-          "address",
-          "dob",
-          "roleId",
-          "mobile",
-          "genderId",
-          "classId",
-          "image",
-        ],
-        order: [["id", "ASC"]],
-        include: [
-          {
-            model: db.AllCode,
-            as: "genderData",
-            attributes: ["id", "KeyMap", "valueEn", "valueVi"],
-          },
-          {
-            model: db.AllCode,
-            as: "roleData",
-            attributes: ["id", "KeyMap", "valueEn", "valueVi"],
-          },
-          {
-            model: db.Parents,
-            as: "parentData",
-            attributes: [
-              "id",
-              "userId",
-              "mobile",
-              "fullNameFather",
-              "fullNameMommy",
-            ],
-            include: [
-              {
-                model: db.AllCode,
-                as: "genderMommyData",
-                attributes: ["id", "KeyMap", "valueEn", "valueVi"],
-              },
-              {
-                model: db.AllCode,
-                as: "genderFatherData",
-                attributes: ["id", "KeyMap", "valueEn", "valueVi"],
-              },
-            ],
-          },
-        ],
-        raw: true,
-        nest: true,
-      });
-      if (studentsData) {
-        // console.log(studentsData);
-        studentsData.forEach(async (element) => {
-          if (element.image) {
-            const base64 = await Buffer.from(element.image, "base64").toString(
-              "binary"
-            );
-            element.image = base64;
-          }
+          attributes: [
+            "id",
+            "fullName",
+            "email",
+            "address",
+            "dob",
+            "roleId",
+            "mobile",
+            "genderId",
+            "classId",
+            "image",
+          ],
+          order: [["id", "DESC"]],
+          include: [
+            {
+              model: db.AllCode,
+              as: "genderData",
+              attributes: ["id", "KeyMap", "valueEn", "valueVi"],
+            },
+            {
+              model: db.AllCode,
+              as: "roleData",
+              attributes: ["id", "KeyMap", "valueEn", "valueVi"],
+            },
+            {
+              model: db.Parents,
+              as: "parentData",
+              attributes: [
+                "id",
+                "userId",
+                "mobile",
+                "fullNameFather",
+                "fullNameMommy",
+              ],
+              include: [
+                {
+                  model: db.AllCode,
+                  as: "genderMommyData",
+                  attributes: ["id", "KeyMap", "valueEn", "valueVi"],
+                },
+                {
+                  model: db.AllCode,
+                  as: "genderFatherData",
+                  attributes: ["id", "KeyMap", "valueEn", "valueVi"],
+                },
+              ],
+            },
+          ],
+          raw: true,
+          nest: true,
         });
-        // if(studentsData && studentsData)
-        resolve({
-          statusCode: 2,
-          data: studentsData,
-        });
+        // console.log(studentsLength.length);
+        if (studentsData) {
+          const studentsLength = await db.User.findAll({
+            where: {
+              roleId: {
+                [Op.or]: ["R0", "R1"],
+              },
+            },
+            attributes: ["id", "roleId"],
+          });
+          // console.log(studentsData);
+          studentsData.forEach(async (element) => {
+            if (element.image) {
+              const base64 = await Buffer.from(
+                element.image,
+                "base64"
+              ).toString("binary");
+              element.image = base64;
+            }
+          });
+          // if(studentsData && studentsData)
+          resolve({
+            statusCode: 2,
+            data: studentsData,
+            sizeUser: studentsLength.length,
+          });
+        }
       }
     } catch (error) {
       reject(error);
@@ -557,6 +573,122 @@ const handleServiceMannageDeleteUser = ({ userId }, userIdDelete) => {
     }
   });
 };
+
+const handleServiceMannageGetDetailUser = ({ userId }) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      if (userId) {
+        const userData = await db.User.findOne({
+          where: {
+            id: userId,
+          },
+          attributes: {
+            exclude: ["passwordHash"],
+          },
+          include: [
+            {
+              model: db.AllCode,
+              as: "genderData",
+              attributes: ["id", "KeyMap", "valueEn", "valueVi"],
+            },
+            {
+              model: db.AllCode,
+              as: "roleData",
+              attributes: ["id", "KeyMap", "valueEn", "valueVi"],
+            },
+            {
+              model: db.Parents,
+              as: "parentData",
+              attributes: [
+                "id",
+                "userId",
+                "mobile",
+                "fullNameFather",
+                "fullNameMommy",
+              ],
+              include: [
+                {
+                  model: db.AllCode,
+                  as: "genderMommyData",
+                  attributes: ["id", "KeyMap", "valueEn", "valueVi"],
+                },
+                {
+                  model: db.AllCode,
+                  as: "genderFatherData",
+                  attributes: ["id", "KeyMap", "valueEn", "valueVi"],
+                },
+              ],
+            },
+            {
+              model: db.Class_Students,
+              as: "classData",
+              attributes: ["id", "keyMap", "studentId", "className"],
+            },
+          ],
+          raw: true,
+          nest: true,
+        });
+        if (userData) {
+          const base64 = await ConvertBuffer(userData.image);
+          if (base64) {
+            userData.image = base64;
+          }
+          resolve({ statusCode: 2, data: userData });
+        }
+      }
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
+const handleServiceManageAllTeacher = () => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const teachData = await db.User.findAll({
+        limit: 15,
+        // limit: currentUsers,
+        offset: 0,
+        where: {
+          roleId: "R2",
+        },
+        attributes: {
+          exclude: ["passwordHash"],
+        },
+        order: [["id", "DESC"]],
+        include: [
+          {
+            model: db.AllCode,
+            as: "genderData",
+            attributes: ["id", "KeyMap", "valueEn", "valueVi"],
+          },
+          {
+            model: db.AllCode,
+            as: "roleData",
+            attributes: ["id", "KeyMap", "valueEn", "valueVi"],
+          },
+        ],
+        raw: true,
+        nest: true,
+      });
+
+      if (teachData) {
+        ///ConvertBuffer
+        teachData.forEach(async (element) => {
+          if (element.image) {
+            const base64 = await Buffer.from(element.image, "base64").toString(
+              "binary"
+            );
+            element.image = base64;
+          }
+        });
+        // console.log(teachData);
+        resolve({ statusCode: 2, data: teachData });
+      }
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
 module.exports = {
   profileService,
   handleUpdateService,
@@ -566,4 +698,6 @@ module.exports = {
   handleServiceGetUserById,
   handleServiceMannageEditUser,
   handleServiceMannageDeleteUser,
+  handleServiceMannageGetDetailUser,
+  handleServiceManageAllTeacher,
 };

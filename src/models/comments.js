@@ -14,7 +14,7 @@ module.exports = (sequelize, DataTypes) => {
         // targetKey: "userId",
         as: "authorData",
       });
-      Comments.hasMany(models.Post, {
+      Comments.belongsTo(models.Post, {
         foreignKey: "postId",
         targetKey: "commentsId",
         as: "commentsData",

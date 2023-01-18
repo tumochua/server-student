@@ -1,4 +1,4 @@
-// import { Op, where } from "sequelize";
+import { Op } from "sequelize";
 import db from "../models/index";
 import { PAGE_SIZE } from "../utils/constants";
 // import { useCheckPosts } from "../use/posts";
@@ -305,7 +305,7 @@ const handleServiceSearchPosts = (valueSearch) => {
           raw: true,
           nest: true,
         });
-        console.log(searchPosts);
+        // console.log(searchPosts);
         if (searchPosts) {
           resolve({
             statusCode: 2,
@@ -629,66 +629,3 @@ module.exports = {
   handleServiceGetAllPosts,
   // handleServiceQuitLikePosts,
 };
-
-// if (currentPage > 0) {
-//   const skip = (currentPage - 1) * PAGE_SIZE;
-//   // console.log(skip);
-//   const postData = await db.Post.findAll();
-//   console.log(postData);
-//   // const postData = await db.Post.findAll();
-//   // console.log(postData);
-//   // const posts = await db.Post.findAll({
-//   //   limit: PAGE_SIZE,
-//   //   offset: skip,
-//   //   where: {
-//   //     status: "S1",
-//   //   },
-//   //   /// DESC giảm dần
-//   //   order: [["id", "DESC"]],
-//   //   /// giảm tăng
-//   //   // order: [["id", "ASC"]],
-//   //   // attributes: [
-//   //   //   "id",
-//   //   //   "title",
-//   //   //   "date",
-//   //   //   "userId",
-//   //   //   "type",
-//   //   //   "image",
-//   //   //   "status",
-//   //   // ],
-//   //   include: [
-//   //     {
-//   //       model: db.User,
-//   //       as: "userData",
-//   //       attributes: ["id", "fullName", "image", "roleId"],
-//   //     },
-//   //     {
-//   //       model: db.AllCode,
-//   //       as: "statusData",
-//   //       attributes: ["id", "KeyMap", "valueEn", "valueVi"],
-//   //     },
-//   //   ],
-//   //   raw: true,
-//   //   nest: true,
-//   // });
-//   // console.log(posts);
-//   // if (posts) {
-//   //   console.log(posts);
-//   //   // console.log("posts", JSON.stringify(posts));
-//   //   posts.forEach(async (element) => {
-//   //     if (element.userData.image) {
-//   //       const base64 = await Buffer.from(
-//   //         element.userData.image,
-//   //         "base64"
-//   //       ).toString("binary");
-//   //       element.userData.image = base64;
-//   //     }
-//   //   });
-//   //   resolve({
-//   //     statusCode: 2,
-//   //     posts,
-//   //     currentPage,
-//   //     pageSize: PAGE_SIZE,
-//   //   });
-//   // }
-// }

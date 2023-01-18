@@ -17,6 +17,8 @@ import {
   handleGetUserById,
   handleMannageEditUser,
   handleMannageDeleteUser,
+  handleMannageGetDetailUser,
+  handleManageAllTeacher,
 } from "../controllers/profileController";
 import {
   handleCreatePost,
@@ -83,23 +85,6 @@ let initWebRoutes = (app) => {
   );
   router.post("/api-create-family", useCheckErrorToken, handleCreateFamily);
 
-  router.get(
-    "/api-get-all-student-manage",
-    useCheckErrorToken,
-    handleGetAllStudentMannage
-  );
-  router.get("/api-get-user-by-id", useCheckErrorToken, handleGetUserById);
-  router.put(
-    "/api-manage-eidt-user",
-    useCheckErrorToken,
-    handleMannageEditUser
-  );
-  router.delete(
-    "/api-manage-delete-user",
-    useCheckErrorToken,
-    handleMannageDeleteUser
-  );
-
   /// posts
   router.post("/api-create-post", useCheckErrorToken, handleCreatePost);
   router.get("/api-get-list-posts", useCheckErrorToken, handleGetListPosts);
@@ -115,14 +100,6 @@ let initWebRoutes = (app) => {
   router.put("/api-edit-posts-by-user", useCheckErrorToken, handleEditPosts);
   router.get("/api-get-verify-posts", useCheckErrorToken, handleVerifyPosts);
   router.put("/api-confirm-posts", useCheckErrorToken, handleConfirmPosts);
-
-  /// manage
-  router.get(
-    "/api-get-all-posts",
-    useCheckErrorToken,
-    // useSortMiddleware,
-    handleGetAllPosts
-  );
 
   // router.delete("/api-quit-like-post", useCheckErrorToken, handleQuitLikePost);
 
@@ -155,6 +132,40 @@ let initWebRoutes = (app) => {
   router.put("/api-eidt-comment", useCheckErrorToken, handleEditCommnet);
   router.delete("/api-delete-comment", useCheckErrorToken, handleDeleteCommnet);
   router.put("/api-likes-comment", useCheckErrorToken, handleLikeComment);
+
+  /// manage
+  router.get(
+    "/api-get-all-posts",
+    useCheckErrorToken,
+    // useSortMiddleware,
+    handleGetAllPosts
+  );
+  router.get(
+    "/api-get-all-student-manage",
+    useCheckErrorToken,
+    handleGetAllStudentMannage
+  );
+  router.get("/api-get-user-by-id", useCheckErrorToken, handleGetUserById);
+  router.put(
+    "/api-manage-eidt-user",
+    useCheckErrorToken,
+    handleMannageEditUser
+  );
+  router.delete(
+    "/api-manage-delete-user",
+    useCheckErrorToken,
+    handleMannageDeleteUser
+  );
+  router.get(
+    "/api-manage-get-detail-user",
+    useCheckErrorToken,
+    handleMannageGetDetailUser
+  );
+  router.get(
+    "/api-get-all-teachers",
+    useCheckErrorToken,
+    handleManageAllTeacher
+  );
 
   return app.use("/", router);
 };

@@ -7,6 +7,8 @@ import {
   handleServiceGetUserById,
   handleServiceMannageEditUser,
   handleServiceMannageDeleteUser,
+  handleServiceMannageGetDetailUser,
+  handleServiceManageAllTeacher,
 } from "../services/profileService";
 
 const handleGetProfileUser = async (req, res, next) => {
@@ -61,7 +63,8 @@ const handleCreateFamily = async (req, res) => {
 
 const handleGetAllStudentMannage = async (req, res) => {
   try {
-    const data = await handleServiceGetAllStudentMannage();
+    const currentUsers = +req.query?.currentUser;
+    const data = await handleServiceGetAllStudentMannage(currentUsers);
     return res.status(200).json(data);
   } catch (error) {
     console.log(error);
@@ -101,6 +104,28 @@ const handleMannageDeleteUser = async (req, res) => {
     return res.status(200).json(error.message);
   }
 };
+const handleMannageGetDetailUser = async (req, res) => {
+  try {
+    const userId = req.query;
+    // const userIdGetDetail = req.userId;
+    const data = await handleServiceMannageGetDetailUser(userId);
+    return res.status(200).json(data);
+  } catch (error) {
+    console.log(error);
+    return res.status(200).json(error.message);
+  }
+};
+const handleManageAllTeacher = async (req, res) => {
+  try {
+    const userId = req.query;
+    // const userIdGetDetail = req.userId;
+    const data = await handleServiceManageAllTeacher(userId);
+    return res.status(200).json(data);
+  } catch (error) {
+    console.log(error);
+    return res.status(200).json(error.message);
+  }
+};
 
 module.exports = {
   handleGetProfileUser,
@@ -111,4 +136,6 @@ module.exports = {
   handleMannageEditUser,
   handleGetUserById,
   handleMannageDeleteUser,
+  handleMannageGetDetailUser,
+  handleManageAllTeacher,
 };
