@@ -66,7 +66,15 @@ module.exports = {
       image: {
         type: Sequelize.BLOB("long"),
       },
-
+      authType: {
+        type: Sequelize.STRING,
+      },
+      authGoogleID: {
+        type: Sequelize.STRING,
+      },
+      authFacebookID: {
+        type: Sequelize.STRING,
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,

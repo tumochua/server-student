@@ -74,6 +74,9 @@ module.exports = (sequelize, DataTypes) => {
       status: DataTypes.BOOLEAN,
       last_login: DataTypes.DATE,
       image: DataTypes.BLOB,
+      authType: DataTypes.STRING,
+      authGoogleID: DataTypes.STRING,
+      authFacebookID: DataTypes.STRING,
     },
     {
       sequelize,

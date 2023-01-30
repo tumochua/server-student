@@ -1,4 +1,5 @@
 import express from "express";
+import passport from "passport";
 import homeController from "../controllers/homeController";
 import auth from "../controllers/authController.js";
 import {
@@ -49,6 +50,11 @@ import {
   handleLikeComment,
 } from "../controllers/commentController";
 
+import passportConfig from "../middleware/passport";
+import {
+  handleAuth2Google,
+  handleAuth2Facebook,
+} from "../controllers/auth2Controller";
 ///// router
 let router = express.Router();
 
@@ -165,6 +171,18 @@ let initWebRoutes = (app) => {
     "/api-get-all-teachers",
     useCheckErrorToken,
     handleManageAllTeacher
+  );
+
+  //// auth2
+  router.post(
+    "/auth-google",
+    passport.authenticate("google-plus-token", { session: false }),
+    handleAuth2Google
+  );
+  router.post(
+    "/auth-facebook",
+    passport.authenticate("facebook-token", { session: false }),
+    handleAuth2Facebook
   );
 
   return app.use("/", router);
